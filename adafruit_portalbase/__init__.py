@@ -66,7 +66,6 @@ class PortalBase:
         json_transform=None,
         debug=False,
     ):
-
         self.network = network
         self.graphics = graphics
         self.splash = self.graphics.splash
@@ -82,9 +81,7 @@ class PortalBase:
             self._alarm = alarm
         except ImportError:
             self._alarm = None
-
         self._debug = debug
-        self._url = None
         self.url = url
         self._headers = headers
         self._json_path = None
@@ -354,11 +351,11 @@ class PortalBase:
 
         """
         if refresh_url:
-            self._url = refresh_url
+            self.url = refresh_url
         values = []
 
         values = self.network.fetch_data(
-            self._url,
+            self.url,
             headers=self._headers,
             json_path=self._json_path,
             regexp_path=self._regexp_path,
@@ -425,21 +422,6 @@ class PortalBase:
 
         """
         return self.network.get_io_group(group_key)
-
-    @property
-    def url(self):
-        """
-        Get or set the URL of your data source.
-        """
-        return self._url
-
-    @url.setter
-    def url(self, value):
-        self._url = value
-        if value and not self.network.uselocal:
-            self.network.connect()
-            # if self._debug:
-            #    print("My IP address is", self.network.ip_address)
 
     @property
     def json_path(self):
