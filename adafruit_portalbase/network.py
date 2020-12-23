@@ -435,6 +435,7 @@ class NetworkBase:
         json_path=None,
         regexp_path=None,
         timeout=10,
+        json_content_type=None,
     ):
         """Fetch data from the specified url and perfom any parsing
 
@@ -444,7 +445,7 @@ class NetworkBase:
         :param regexp_path: The path formatted as a regular expression to drill down
                             into the JSON data.
         :param int timeout: The timeout period in seconds.
-
+        :param json_content_type: A known value for content-type when JSON is returned
         """
         json_out = None
         values = []
@@ -467,6 +468,8 @@ class NetworkBase:
                 elif "application/json" in headers["content-type"]:
                     content_type = CONTENT_JSON
                 elif "application/javascript" in headers["content-type"]:
+                    content_type = CONTENT_JSON
+                elif json_content_type and json_content_type in headers["content-type"]:
                     content_type = CONTENT_JSON
         else:
             if self._debug:
