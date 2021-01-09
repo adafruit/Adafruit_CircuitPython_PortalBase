@@ -191,7 +191,7 @@ class NetworkBase:
                     "Error connection to Adafruit IO. The response was: "
                     + response.text
                 )
-                raise ValueError(error_message)
+                raise RuntimeError(error_message)
             if self._debug:
                 print("Time request: ", api_url)
                 print("Time reply: ", response.text)
