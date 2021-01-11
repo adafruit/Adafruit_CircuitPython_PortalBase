@@ -96,11 +96,11 @@ class NetworkBase:
         self.json_transform = []
         self._extract_values = extract_values
 
-        self._json_types = (
+        self._json_types = [
             "application/json",
             "application/javascript",
             "application/geo+json",
-        )
+        ]
 
         # This may be removed. Using for testing
         self.requests = None
@@ -432,6 +432,16 @@ class NetworkBase:
             gc.collect()
 
         return response
+
+    def add_json_content_type(self, content_type):
+        """
+        Add a JSON content type
+
+        :param str type: The content JSON type like 'application/json'
+
+        """
+        if isinstance(content_type, str):
+            self._json_types.append(content_type)
 
     def _detect_content_type(self, headers):
         if "content-type" in headers:
