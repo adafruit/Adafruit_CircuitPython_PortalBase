@@ -49,6 +49,8 @@ class PortalBase:
                             on-board NeoPixel. Defaults to ``None``, to not use the status LED
     :param json_transform: A function or a list of functions to call with the parsed JSON.
                         Changes and additions are permitted for the ``dict`` object.
+    :param success_callback: A function we'll call if you like, when we fetch data successfully.
+                             Defaults to ``None``.
     :param debug: Turn on debug print outs. Defaults to False.
 
     """

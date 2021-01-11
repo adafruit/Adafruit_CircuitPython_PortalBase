@@ -398,12 +398,12 @@ class NetworkBase:
         io_client = self._get_io_client()
 
         while True:
-            # try:
-            return io_client.receive_all_data(feed_key)
-            # except RuntimeError as exception:
-            #    print("An error occured, retrying! 1 -", exception)
-            #    continue
-            # break
+            try:
+                return io_client.receive_all_data(feed_key)
+            except RuntimeError as exception:
+                print("An error occured, retrying! 1 -", exception)
+                continue
+            break
 
     def fetch(self, url, *, headers=None, timeout=10):
         """Fetch data from the specified url and return a response object
