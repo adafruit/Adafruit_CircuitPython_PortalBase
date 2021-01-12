@@ -96,6 +96,12 @@ class NetworkBase:
         self.json_transform = []
         self._extract_values = extract_values
 
+        self._json_types = [
+            "application/json",
+            "application/javascript",
+            "application/geo+json",
+        ]
+
         # This may be removed. Using for testing
         self.requests = None
 
@@ -185,7 +191,7 @@ class NetworkBase:
                     "Error connection to Adafruit IO. The response was: "
                     + response.text
                 )
-                raise ValueError(error_message)
+                raise RuntimeError(error_message)
             if self._debug:
                 print("Time request: ", api_url)
                 print("Time reply: ", response.text)
@@ -427,6 +433,63 @@ class NetworkBase:
 
         return response
 
+    def add_json_content_type(self, content_type):
+        """
+        Add a JSON content type
+
+        :param str type: The content JSON type like 'application/json'
+
+        """
+        if isinstance(content_type, str):
+            self._json_types.append(content_type)
+
+    def _detect_content_type(self, headers):
+        if "content-type" in headers:
+            if "image/" in headers["content-type"]:
+                return CONTENT_IMAGE
+            for json_type in self._json_types:
+                if json_type in headers["content-type"]:
+                    return CONTENT_JSON
+        return CONTENT_TEXT
+
+    def check_response(self, response):
+        """
+        Check the response object status code, change the lights, and return content type
+
+        :param response: The response object from a network call
+
+        """
+        headers = self._get_headers(response)
+
+        if self._debug:
+            print("Headers:", headers)
+        if response.status_code == 200:
+            print("Reply is OK!")
+            self.neo_status(STATUS_DATA_RECEIVED)  # green = got data
+            content_type = self._detect_content_type(headers)
+        else:
+            if self._debug:
+                if "content-length" in headers:
+                    print("Content-Length: {}".format(int(headers["content-length"])))
+                if "date" in headers:
+                    print("Date: {}".format(headers["date"]))
+            self.neo_status((100, 0, 0))  # red = http error
+            raise HttpError(
+                "Code {}: {}".format(
+                    response.status_code, response.reason.decode("utf-8")
+                )
+            )
+
+        return content_type
+
+    @staticmethod
+    def _get_headers(response):
+        headers = {}
+        for title, content in response.headers.items():
+            headers[title.lower()] = content
+        gc.collect()
+        return headers
+
     def fetch_data(
         self,
         url,
@@ -441,51 +504,32 @@ class NetworkBase:
         :param str url: The URL to fetch from.
         :param list headers: Extra headers to include in the request.
         :param json_path: The path to drill down into the JSON data.
-        :param regexp_path: The path formatted as a regular expression to drill down
-                            into the JSON data.
+        :param regexp_path: The path formatted as a regular expression to search
+                            the text data.
         :param int timeout: The timeout period in seconds.
 
         """
-        json_out = None
-        values = []
-        content_type = CONTENT_TEXT
-
         response = self.fetch(url, headers=headers, timeout=timeout)
+        return self._parse_data(response, json_path=json_path, regexp_path=regexp_path)
 
-        headers = {}
-        for title, content in response.headers.items():
-            headers[title.lower()] = content
-        gc.collect()
-        if self._debug:
-            print("Headers:", headers)
-        if response.status_code == 200:
-            print("Reply is OK!")
-            self.neo_status(STATUS_DATA_RECEIVED)  # green = got data
-            if "content-type" in headers:
-                if "image/" in headers["content-type"]:
-                    content_type = CONTENT_IMAGE
-                elif "application/json" in headers["content-type"]:
-                    content_type = CONTENT_JSON
-                elif "application/javascript" in headers["content-type"]:
-                    content_type = CONTENT_JSON
-        else:
-            if self._debug:
-                if "content-length" in headers:
-                    print("Content-Length: {}".format(int(headers["content-length"])))
-                if "date" in headers:
-                    print("Date: {}".format(headers["date"]))
-            self.neo_status((100, 0, 0))  # red = http error
-            raise HttpError(
-                "Code {}: {}".format(
-                    response.status_code, response.reason.decode("utf-8")
-                )
-            )
+    def _parse_data(
+        self,
+        response,
+        *,
+        json_path=None,
+        regexp_path=None,
+    ):
 
-        if content_type == CONTENT_JSON and json_path is not None:
-            if isinstance(json_path, (list, tuple)) and (
-                not json_path or not isinstance(json_path[0], (list, tuple))
-            ):
-                json_path = (json_path,)
+        json_out = None
+        content_type = self.check_response(response)
+
+        if content_type == CONTENT_JSON:
+            if json_path is not None:
+                # Drill down to the json path and set json_out as that node
+                if isinstance(json_path, (list, tuple)) and (
+                    not json_path or not isinstance(json_path[0], (list, tuple))
+                ):
+                    json_path = (json_path,)
             try:
                 gc.collect()
                 json_out = response.json()
@@ -498,43 +542,71 @@ class NetworkBase:
             except MemoryError:
                 supervisor.reload()
 
+        if content_type == CONTENT_JSON:
+            values = self.process_json(json_out, json_path)
+        elif content_type == CONTENT_TEXT:
+            values = self.process_text(response.text, regexp_path)
+
+        # Clean up
+        json_out = None
+        response = None
+        if self._extract_values and len(values) == 1:
+            values = values[0]
+
+        gc.collect()
+
+        return values
+
+    @staticmethod
+    def process_text(text, regexp_path):
+        """
+        Process text content
+
+        :param str text: The entire text content
+        :param regexp_path: The path formatted as a regular expression to search
+                            the text data.
+
+        """
+        values = []
         if regexp_path:
             import re  # pylint: disable=import-outside-toplevel
+
+            for regexp in regexp_path:
+                values.append(re.search(regexp, text).group(1))
+        else:
+            values = text
+        return values
+
+    def process_json(self, json_data, json_path):
+        """
+        Process JSON content
+
+        :param dict json_data: The JSON data as a dict
+        :param json_path: The path to drill down into the JSON data.
+
+        """
+        values = []
 
         # optional JSON post processing, apply any transformations
         # these MAY change/add element
         for idx, json_transform in enumerate(self.json_transform):
             try:
-                json_transform(json_out)
+                json_transform(json_data)
             except Exception as error:
                 print("Exception from json_transform: ", idx, error)
                 raise
 
         # extract desired text/values from json
-        if json_out is not None and json_path:
+        if json_data is not None and json_path:
             for path in json_path:
                 try:
-                    values.append(self.json_traverse(json_out, path))
+                    values.append(self.json_traverse(json_data, path))
                 except KeyError:
-                    print(json_out)
+                    print(json_data)
                     raise
-        elif content_type == CONTENT_TEXT and regexp_path:
-            for regexp in regexp_path:
-                values.append(re.search(regexp, response.text).group(1))
         else:
-            if json_out:
-                # No path given, so return JSON as string for compatibility
-                import json  # pylint: disable=import-outside-toplevel
+            # No path given, so return JSON as string for compatibility
+            import json  # pylint: disable=import-outside-toplevel
 
-                values = json.dumps(response.json())
-            else:
-                values = response.text
-
-        # we're done with the requests object, lets delete it so we can do more!
-        json_out = None
-        response = None
-        gc.collect()
-        if self._extract_values and len(values) == 1:
-            return values[0]
-
+            values = json.dumps(json_data)
         return values

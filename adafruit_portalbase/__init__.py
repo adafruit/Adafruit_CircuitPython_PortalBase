@@ -49,6 +49,8 @@ class PortalBase:
                             on-board NeoPixel. Defaults to ``None``, to not use the status LED
     :param json_transform: A function or a list of functions to call with the parsed JSON.
                         Changes and additions are permitted for the ``dict`` object.
+    :param success_callback: A function we'll call if you like, when we fetch data successfully.
+                             Defaults to ``None``.
     :param debug: Turn on debug print outs. Defaults to False.
 
     """
@@ -64,6 +66,7 @@ class PortalBase:
         json_path=None,
         regexp_path=None,
         json_transform=None,
+        success_callback=None,
         debug=False,
     ):
         self.network = network
@@ -88,6 +91,7 @@ class PortalBase:
         self.json_path = json_path
 
         self._regexp_path = regexp_path
+        self._success_callback = success_callback
 
         # Add any JSON translators
         if json_transform:
@@ -362,6 +366,17 @@ class PortalBase:
             timeout=timeout,
         )
 
+        # if we have a callback registered, call it now
+        if self._success_callback:
+            self._success_callback(values)
+
+        self._fill_text_labels(values)
+
+        if len(values) == 1:
+            return values[0]
+        return values
+
+    def _fill_text_labels(self, values):
         # fill out all the text blocks
         if self._text:
             value_index = 0  # In case values and text is not the same
@@ -379,9 +394,6 @@ class PortalBase:
                         string = values[value_index]  # ok it's a string
                 self._fetch_set_text(string, index=i)
                 value_index += 1
-        if len(values) == 1:
-            return values[0]
-        return values
 
     def get_local_time(self, location=None):
         """Accessor function for get_local_time()"""
