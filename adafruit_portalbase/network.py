@@ -26,10 +26,17 @@ import time
 import gc
 from micropython import const
 from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
-import supervisor
-import rtc
 from adafruit_fakerequests import Fake_Requests
 
+try:
+    import supervisor
+except ImportError:
+    supervisor = None
+
+try:
+    import rtc
+except ImportError:
+    rtc = None
 
 try:
     from secrets import secrets
@@ -211,7 +218,8 @@ class NetworkBase:
         now = time.struct_time(
             (year, month, mday, hours, minutes, seconds, week_day, year_day, is_dst)
         )
-        rtc.RTC().datetime = now
+        if rtc is not None:
+            rtc.RTC().datetime = now
 
         # now clean up
         response.close()
@@ -540,7 +548,9 @@ class NetworkBase:
                 print("Couldn't parse json: ", response.text)
                 raise
             except MemoryError:
-                supervisor.reload()
+                if supervisor is not None:
+                    supervisor.reload()
+                raise
 
         if content_type == CONTENT_JSON:
             values = self.process_json(json_out, json_path)
