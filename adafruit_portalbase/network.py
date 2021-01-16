@@ -45,7 +45,6 @@ except ImportError:
         """WiFi settings are kept in secrets.py, please add them there!
 the secrets dictionary must contain 'ssid' and 'password' at a minimum"""
     )
-    raise
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
@@ -87,27 +86,28 @@ class NetworkBase:
     :param bool extract_values: If true, single-length fetched values are automatically extracted
                                 from lists and tuples. Defaults to ``True``.
     :param debug: Turn on debug print outs. Defaults to False.
+    :param list secrets_data: An optional list in place of the data contained in the secrets.py file
 
     """
 
     # pylint: disable=too-many-instance-attributes, too-many-locals, too-many-branches, too-many-statements
     def __init__(
-        self,
-        wifi_module,
-        *,
-        extract_values=True,
-        debug=False,
+        self, wifi_module, *, extract_values=True, debug=False, secrets_data=None
     ):
         self._wifi = wifi_module
         self._debug = debug
         self.json_transform = []
         self._extract_values = extract_values
-
         self._json_types = [
             "application/json",
             "application/javascript",
             "application/geo+json",
         ]
+
+        if secrets_data is not None:
+            self._secrets = secrets_data
+        else:
+            self._secrets = secrets
 
         # This may be removed. Using for testing
         self.requests = None
@@ -175,15 +175,15 @@ class NetworkBase:
         self.connect()
         api_url = None
         try:
-            aio_username = secrets["aio_username"]
-            aio_key = secrets["aio_key"]
+            aio_username = self._secrets["aio_username"]
+            aio_key = self._secrets["aio_key"]
         except KeyError:
             raise KeyError(
                 "\n\nOur time service requires a login/password to rate-limit. Please register for a free adafruit.io account and place the user/key in your secrets file under 'aio_username' and 'aio_key'"  # pylint: disable=line-too-long
             ) from KeyError
 
         if location is None:
-            location = secrets.get("timezone", location)
+            location = self._secrets.get("timezone", location)
         if location:
             print("Getting time for timezone", location)
             api_url = (TIME_SERVICE + "&tz=%s") % (aio_username, aio_key, location)
@@ -301,8 +301,11 @@ class NetworkBase:
         self._wifi.neo_status(STATUS_CONNECTING)
         while not self._wifi.is_connected:
             # secrets dictionary must contain 'ssid' and 'password' at a minimum
-            print("Connecting to AP", secrets["ssid"])
-            if secrets["ssid"] == "CHANGE ME" or secrets["password"] == "CHANGE ME":
+            print("Connecting to AP", self._secrets["ssid"])
+            if (
+                self._secrets["ssid"] == "CHANGE ME"
+                or self._secrets["password"] == "CHANGE ME"
+            ):
                 change_me = "\n" + "*" * 45
                 change_me += "\nPlease update the 'secrets.py' file on your\n"
                 change_me += "CIRCUITPY drive to include your local WiFi\n"
@@ -312,7 +315,7 @@ class NetworkBase:
                 raise OSError(change_me)
             self._wifi.neo_status(STATUS_NO_CONNECTION)  # red = not connected
             try:
-                self._wifi.connect(secrets["ssid"], secrets["password"])
+                self._wifi.connect(self._secrets["ssid"], self._secrets["password"])
                 self.requests = self._wifi.requests
             except RuntimeError as error:
                 print("Could not connect to internet", error)
@@ -323,8 +326,8 @@ class NetworkBase:
         self.connect()
 
         try:
-            aio_username = secrets["aio_username"]
-            aio_key = secrets["aio_key"]
+            aio_username = self._secrets["aio_username"]
+            aio_key = self._secrets["aio_key"]
         except KeyError:
             raise KeyError(
                 "Adafruit IO secrets are kept in secrets.py, please add them there!\n\n"
