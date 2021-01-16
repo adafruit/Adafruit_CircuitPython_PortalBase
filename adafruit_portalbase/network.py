@@ -45,7 +45,6 @@ except ImportError:
         """WiFi settings are kept in secrets.py, please add them there!
 the secrets dictionary must contain 'ssid' and 'password' at a minimum"""
     )
-    raise
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
@@ -302,7 +301,7 @@ class NetworkBase:
         self._wifi.neo_status(STATUS_CONNECTING)
         while not self._wifi.is_connected:
             # secrets dictionary must contain 'ssid' and 'password' at a minimum
-            print("Connecting to AP", secrets["ssid"])
+            print("Connecting to AP", self._secrets["ssid"])
             if (
                 self._secrets["ssid"] == "CHANGE ME"
                 or self._secrets["password"] == "CHANGE ME"
