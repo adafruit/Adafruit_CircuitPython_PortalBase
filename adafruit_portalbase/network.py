@@ -425,8 +425,6 @@ class NetworkBase:
 
         """
         gc.collect()
-        if self._debug:
-            print("Free mem: ", gc.mem_free())  # pylint: disable=no-member
 
         response = None
         if self.uselocal:
