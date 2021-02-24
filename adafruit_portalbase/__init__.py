@@ -166,7 +166,7 @@ class PortalBase:
         :param text_transform: A function that will be called on the text before display
         :param int text_scale: The factor to scale the default size of the text by
         :param float line_spacing: The factor to space the lines apart
-        :param (float, float) text_anchor_point: Values between 0 and 1 to indicate where the text
+        :param (float,float) text_anchor_point: Values between 0 and 1 to indicate where the text
                                                  position is relative to the label
         :param bool is_data: If True, fetch will attempt to update the label
         """
