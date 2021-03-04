@@ -29,11 +29,6 @@ from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
 from adafruit_fakerequests import Fake_Requests
 
 try:
-    import supervisor
-except ImportError:
-    supervisor = None
-
-try:
     import rtc
 except ImportError:
     rtc = None
@@ -109,7 +104,6 @@ class NetworkBase:
         else:
             self._secrets = secrets
 
-        # This may be removed. Using for testing
         self.requests = None
 
         try:
@@ -548,10 +542,10 @@ class NetworkBase:
             except ValueError:  # failed to parse?
                 print("Couldn't parse json: ", response.text)
                 raise
-            except MemoryError:
-                if supervisor is not None:
-                    supervisor.reload()
-                raise
+            except MemoryError as error:
+                raise MemoryError(
+                    "{} (data is likely too large)".format(error)
+                ) from error
 
         if content_type == CONTENT_JSON:
             values = self.process_json(json_out, json_path)
