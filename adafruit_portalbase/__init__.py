@@ -237,24 +237,36 @@ class PortalBase:
             index_in_splash = self.splash.index(self._text[index]["label"])
         elif self._debug:
             print("Creating text area with :", string)
+        if len(string) > 0:
+            # If longer text, destroy and recreate the label because we can't increase max_glyphs
+            if (
+                self._text[index]["label"] is not None
+                and len(string) > self._text[index]["label"].width
+            ):
+                self._text[index]["label"] = None
 
-        if len(string.strip()) > 0:
             if self._text[index]["label"] is None:
                 self._text[index]["label"] = Label(
                     self._fonts[self._text[index]["font"]],
                     text=string,
                     scale=self._text[index]["scale"],
                 )
+                if index_in_splash is not None:
+                    self.splash[index_in_splash] = self._text[index]["label"]
+                else:
+                    self.splash.append(self._text[index]["label"])
+            else:
+                self._text[index]["label"].text = string
             self._text[index]["label"].color = self._text[index]["color"]
             self._text[index]["label"].anchor_point = self._text[index]["anchor_point"]
             self._text[index]["label"].anchored_position = self._text[index]["position"]
             self._text[index]["label"].line_spacing = self._text[index]["line_spacing"]
         elif index_in_splash is not None:
             self._text[index]["label"] = None
-            del self.splash[index_in_splash]
 
-        if self._text[index]["label"] is not None and index_in_splash is None:
-            self.splash.append(self._text[index]["label"])
+        # Remove the label from splash
+        if index_in_splash is not None and self._text[index]["label"] is None:
+            del self.splash[index_in_splash]
 
     def preload_font(self, glyphs=None, index=0):
         # pylint: disable=line-too-long
