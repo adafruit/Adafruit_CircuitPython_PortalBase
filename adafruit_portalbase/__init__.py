@@ -238,25 +238,22 @@ class PortalBase:
         elif self._debug:
             print("Creating text area with :", string)
 
-        if len(string) > 0:
-            self._text[index]["label"] = Label(
-                self._fonts[self._text[index]["font"]],
-                text=string,
-                scale=self._text[index]["scale"],
-            )
+        if len(string.strip()) > 0:
+            if self._text[index]["label"] is None:
+                self._text[index]["label"] = Label(
+                    self._fonts[self._text[index]["font"]],
+                    text=string,
+                    scale=self._text[index]["scale"],
+                )
             self._text[index]["label"].color = self._text[index]["color"]
             self._text[index]["label"].anchor_point = self._text[index]["anchor_point"]
             self._text[index]["label"].anchored_position = self._text[index]["position"]
             self._text[index]["label"].line_spacing = self._text[index]["line_spacing"]
         elif index_in_splash is not None:
             self._text[index]["label"] = None
+            del self.splash[index_in_splash]
 
-        if index_in_splash is not None:
-            if self._text[index]["label"] is not None:
-                self.splash[index_in_splash] = self._text[index]["label"]
-            else:
-                del self.splash[index_in_splash]
-        elif self._text[index]["label"] is not None:
+        if self._text[index]["label"] is not None and index_in_splash is None:
             self.splash.append(self._text[index]["label"])
 
     def preload_font(self, glyphs=None, index=0):
