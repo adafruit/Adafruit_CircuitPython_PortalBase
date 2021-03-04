@@ -24,7 +24,7 @@ import gc
 import time
 import terminalio
 from adafruit_bitmap_font import bitmap_font
-from adafruit_display_text.label import Label
+from adafruit_display_text.bitmap_label import Label
 from adafruit_display_text import wrap_text_to_lines
 
 __version__ = "0.0.0-auto.0"
@@ -238,13 +238,6 @@ class PortalBase:
         elif self._debug:
             print("Creating text area with :", string)
         if len(string) > 0:
-            # If longer text, destroy and recreate the label because we can't increase max_glyphs
-            if (
-                self._text[index]["label"] is not None
-                and len(string) > self._text[index]["label"].width
-            ):
-                self._text[index]["label"] = None
-
             if self._text[index]["label"] is None:
                 self._text[index]["label"] = Label(
                     self._fonts[self._text[index]["font"]],
