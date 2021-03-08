@@ -24,7 +24,7 @@ import gc
 import time
 import terminalio
 from adafruit_bitmap_font import bitmap_font
-from adafruit_display_text.label import Label
+from adafruit_display_text.bitmap_label import Label
 from adafruit_display_text import wrap_text_to_lines
 
 __version__ = "0.0.0-auto.0"
@@ -237,13 +237,19 @@ class PortalBase:
             index_in_splash = self.splash.index(self._text[index]["label"])
         elif self._debug:
             print("Creating text area with :", string)
-
         if len(string) > 0:
-            self._text[index]["label"] = Label(
-                self._fonts[self._text[index]["font"]],
-                text=string,
-                scale=self._text[index]["scale"],
-            )
+            if self._text[index]["label"] is None:
+                self._text[index]["label"] = Label(
+                    self._fonts[self._text[index]["font"]],
+                    text=string,
+                    scale=self._text[index]["scale"],
+                )
+                if index_in_splash is not None:
+                    self.splash[index_in_splash] = self._text[index]["label"]
+                else:
+                    self.splash.append(self._text[index]["label"])
+            else:
+                self._text[index]["label"].text = string
             self._text[index]["label"].color = self._text[index]["color"]
             self._text[index]["label"].anchor_point = self._text[index]["anchor_point"]
             self._text[index]["label"].anchored_position = self._text[index]["position"]
@@ -251,13 +257,9 @@ class PortalBase:
         elif index_in_splash is not None:
             self._text[index]["label"] = None
 
-        if index_in_splash is not None:
-            if self._text[index]["label"] is not None:
-                self.splash[index_in_splash] = self._text[index]["label"]
-            else:
-                del self.splash[index_in_splash]
-        elif self._text[index]["label"] is not None:
-            self.splash.append(self._text[index]["label"])
+        # Remove the label from splash
+        if index_in_splash is not None and self._text[index]["label"] is None:
+            del self.splash[index_in_splash]
 
     def preload_font(self, glyphs=None, index=0):
         # pylint: disable=line-too-long
