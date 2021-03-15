@@ -260,6 +260,7 @@ class PortalBase:
         # Remove the label from splash
         if index_in_splash is not None and self._text[index]["label"] is None:
             del self.splash[index_in_splash]
+        gc.collect()
 
     def preload_font(self, glyphs=None, index=0):
         # pylint: disable=line-too-long
