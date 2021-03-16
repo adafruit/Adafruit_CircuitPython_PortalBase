@@ -51,9 +51,7 @@ TIME_SERVICE = (
 )
 # our strftime is %Y-%m-%d %H:%M:%S.%L %j %u %z %Z see http://strftime.net/ for decoding details
 # See https://apidock.com/ruby/DateTime/strftime for full options
-TIME_SERVICE_STRFTIME = (
-    "&fmt=%25Y-%25m-%25d+%25H%3A%25M%3A%25S.%25L+%25j+%25u+%25z+%25Z"
-)
+TIME_SERVICE_FORMAT = "%Y-%m-%d %H:%M:%S.%L %j %u %z %Z"
 LOCALFILE = "local.txt"
 # pylint: enable=line-too-long
 
@@ -157,17 +155,27 @@ class NetworkBase:
         else:
             self.json_transform.extend(filter(callable, json_transform))
 
-    def get_local_time(self, location=None):
+    @staticmethod
+    def url_encode(url):
+        """
+        A function to perform minimal URL encoding
+        """
+        url = url.replace(" ", "+")
+        url = url.replace("%", "%25")
+        url = url.replace(":", "%3A")
+        return url
+
+    def get_strftime(self, time_format, location=None):
+        """
+        Fetch a custom strftime relative to your location.
+
+        :param str location: Your city and country, e.g. ``"America/New_York"``.
+
+        """
         # pylint: disable=line-too-long
-        """
-        Fetch and "set" the local time of this microcontroller to the local time at the location, using an internet time API.
-
-        :param str location: Your city and country, e.g. ``"New York, US"``.
-
-        """
-        # pylint: enable=line-too-long
         self.connect()
         api_url = None
+        reply = None
         try:
             aio_username = self._secrets["aio_username"]
             aio_key = self._secrets["aio_key"]
@@ -184,41 +192,57 @@ class NetworkBase:
         else:  # we'll try to figure it out from the IP address
             print("Getting time from IP address")
             api_url = TIME_SERVICE % (aio_username, aio_key)
-        api_url += TIME_SERVICE_STRFTIME
+        api_url += "&fmt=" + self.url_encode(time_format)
+
         try:
             response = self._wifi.requests.get(api_url, timeout=10)
             if response.status_code != 200:
+                print(response)
                 error_message = (
-                    "Error connection to Adafruit IO. The response was: "
+                    "Error connecting to Adafruit IO. The response was: "
                     + response.text
                 )
                 raise RuntimeError(error_message)
             if self._debug:
                 print("Time request: ", api_url)
                 print("Time reply: ", response.text)
-            times = response.text.split(" ")
+            reply = response.text
+        except KeyError:
+            raise KeyError(
+                "Was unable to lookup the time, try setting secrets['timezone'] according to http://worldtimeapi.org/timezones"  # pylint: disable=line-too-long
+            ) from KeyError
+        # now clean up
+        response.close()
+        response = None
+        gc.collect()
+
+        return reply
+
+    def get_local_time(self, location=None):
+        # pylint: disable=line-too-long
+        """
+        Fetch and "set" the local time of this microcontroller to the local time at the location, using an internet time API.
+
+        :param str location: Your city and country, e.g. ``"America/New_York"``.
+
+        """
+        reply = self.get_strftime(TIME_SERVICE_FORMAT, location=location)
+        if reply:
+            times = reply.split(" ")
             the_date = times[0]
             the_time = times[1]
             year_day = int(times[2])
             week_day = int(times[3])
             is_dst = None  # no way to know yet
-        except KeyError:
-            raise KeyError(
-                "Was unable to lookup the time, try setting secrets['timezone'] according to http://worldtimeapi.org/timezones"  # pylint: disable=line-too-long
-            ) from KeyError
-        year, month, mday = [int(x) for x in the_date.split("-")]
-        the_time = the_time.split(".")[0]
-        hours, minutes, seconds = [int(x) for x in the_time.split(":")]
-        now = time.struct_time(
-            (year, month, mday, hours, minutes, seconds, week_day, year_day, is_dst)
-        )
+            year, month, mday = [int(x) for x in the_date.split("-")]
+            the_time = the_time.split(".")[0]
+            hours, minutes, seconds = [int(x) for x in the_time.split(":")]
+            now = time.struct_time(
+                (year, month, mday, hours, minutes, seconds, week_day, year_day, is_dst)
+            )
+
         if rtc is not None:
             rtc.RTC().datetime = now
-
-        # now clean up
-        response.close()
-        response = None
-        gc.collect()
 
     def wget(self, url, filename, *, chunk_size=12000):
         """Download a url and save to filename location, like the command wget.
