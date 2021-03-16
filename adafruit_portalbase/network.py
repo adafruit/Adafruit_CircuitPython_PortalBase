@@ -241,8 +241,10 @@ class NetworkBase:
                 (year, month, mday, hours, minutes, seconds, week_day, year_day, is_dst)
             )
 
-        if rtc is not None:
-            rtc.RTC().datetime = now
+            if rtc is not None:
+                rtc.RTC().datetime = now
+
+        return reply
 
     def wget(self, url, filename, *, chunk_size=12000):
         """Download a url and save to filename location, like the command wget.
