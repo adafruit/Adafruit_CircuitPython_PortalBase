@@ -41,14 +41,14 @@ class GraphicsBase:
     """
 
     # pylint: disable=too-many-instance-attributes, too-many-locals, too-many-branches, too-many-statements
-    def __init__(self, display, *, default_bg=0x000000, debug=False):
+    def __init__(self, display, *, default_bg=0x000000, scale=1, debug=False):
 
         self._debug = debug
         self.display = display
 
         if self._debug:
             print("Init display")
-        self.splash = displayio.Group(max_size=15)
+        self.splash = displayio.Group(max_size=15, scale=scale)
         self._qr_group = None
         if self._debug:
             print("Init background")
