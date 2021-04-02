@@ -149,6 +149,7 @@ class PortalBase:
         line_spacing=1.25,
         text_anchor_point=(0, 0.5),
         is_data=True,
+        text=None,
     ):
         """
         Add text labels with settings
@@ -202,7 +203,11 @@ class PortalBase:
         }
         self._text.append(text_field)
 
-        return len(self._text) - 1
+        text_index = len(self._text) - 1
+        if text is not None:
+            self.set_text(text, text_index)
+
+        return text_index
 
     # pylint: enable=too-many-arguments
 
