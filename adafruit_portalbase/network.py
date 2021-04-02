@@ -110,6 +110,8 @@ class NetworkBase:
         except OSError:
             self.uselocal = False
 
+        self._io_client = None
+
         gc.collect()
 
     def neo_status(self, value):
@@ -341,8 +343,12 @@ class NetworkBase:
                 print("Could not connect to internet", error)
                 print("Retrying in 3 seconds...")
                 time.sleep(3)
+            gc.collect()
 
     def _get_io_client(self):
+        if self._io_client is not None:
+            return self._io_client
+
         self.connect()
 
         try:
@@ -353,7 +359,8 @@ class NetworkBase:
                 "Adafruit IO secrets are kept in secrets.py, please add them there!\n\n"
             ) from KeyError
 
-        return IO_HTTP(aio_username, aio_key, self._wifi.requests)
+        self._io_client = IO_HTTP(aio_username, aio_key, self._wifi.requests)
+        return self._io_client
 
     def push_to_io(self, feed_key, data):
         """Push data to an adafruit.io feed
