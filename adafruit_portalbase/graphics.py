@@ -55,10 +55,10 @@ class GraphicsBase:
         self._bg_group = displayio.Group(max_size=1)
         self._bg_file = None
         self.splash.append(self._bg_group)
-        self.display.show(self.splash)
 
         # set the default background
         if default_bg is not None:
+            self.display.show(self.splash)
             self.set_background(default_bg)
 
         gc.collect()
