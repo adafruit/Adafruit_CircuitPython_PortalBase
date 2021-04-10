@@ -307,7 +307,8 @@ class PortalBase:
         if self._text[index]:
             color = self.html_color_convert(color)
             self._text[index]["color"] = color
-            self._text[index]["label"].color = color
+            if self._text[index]["label"] is not None:
+                self._text[index]["label"].color = color
 
     def exit_and_deep_sleep(self, sleep_time):
         """
