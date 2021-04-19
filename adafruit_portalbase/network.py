@@ -447,7 +447,7 @@ class NetworkBase:
         """Fetch data from the specified url and return a response object
 
         :param str url: The URL to fetch from.
-        :param list headers: Extra headers to include in the request.
+        :param dict headers: Extra headers to include in the request.
         :param int timeout: The timeout period in seconds.
 
         """
@@ -538,7 +538,7 @@ class NetworkBase:
         """Fetch data from the specified url and perfom any parsing
 
         :param str url: The URL to fetch from.
-        :param list headers: Extra headers to include in the request.
+        :param dict headers: Extra headers to include in the request.
         :param json_path: The path to drill down into the JSON data.
         :param regexp_path: The path formatted as a regular expression to search
                             the text data.
