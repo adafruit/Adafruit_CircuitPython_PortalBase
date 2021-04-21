@@ -29,7 +29,7 @@ import adafruit_esp32spi.adafruit_esp32spi_socket as socket
 import adafruit_requests as requests
 
 __version__ = "0.0.0-auto.0"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_MatrixPortal.git"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
 
 
 class WiFi:
