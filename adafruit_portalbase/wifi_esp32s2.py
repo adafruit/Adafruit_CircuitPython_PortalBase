@@ -34,8 +34,8 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
 class WiFi:
     """Class representing the WiFi portion of the ESP32-S2.
 
-    :param status_led: The initialized object for status DotStar, NeoPixel, or RGB LED. Defaults to ``None``,
-                       to not use the status LED
+    :param status_led: The initialized object for status DotStar, NeoPixel, or RGB LED. Defaults
+                       to ``None``, to not use the status LED
 
     """
 

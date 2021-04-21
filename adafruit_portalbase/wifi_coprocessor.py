@@ -35,8 +35,8 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
 class WiFi:
     """Class representing the ESP.
 
-    :param status_led: The initialized object for status DotStar, NeoPixel, or RGB LED. Defaults to ``None``,
-                       to not use the status LED
+    :param status_led: The initialized object for status DotStar, NeoPixel, or RGB LED. Defaults
+                       to ``None``, to not use the status LED
     :param esp: A passed ESP32 object, Can be used in cases where the ESP32 chip needs to be used
                              before calling the pyportal class. Defaults to ``None``.
     :param busio.SPI external_spi: A previously declared spi object. Defaults to ``None``.
