@@ -29,6 +29,7 @@ autodoc_mock_imports = [
     "rtc",
     "ssl",
     "secrets",
+    "wifi",
 ]
 
 intersphinx_mapping = {
