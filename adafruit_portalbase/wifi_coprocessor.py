@@ -63,7 +63,7 @@ class WiFi:
             esp32_gpio0 = DigitalInOut(board.ESP_GPIO0)
             esp32_reset = DigitalInOut(board.ESP_RESET)
             esp32_cs = DigitalInOut(board.ESP_CS)
-            spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
+            spi = board.SPI()
 
             self.esp = adafruit_esp32spi.ESP_SPIcontrol(
                 spi, esp32_cs, esp32_ready, esp32_reset, esp32_gpio0
