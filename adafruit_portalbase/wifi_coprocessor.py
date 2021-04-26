@@ -63,7 +63,7 @@ class WiFi:
             if external_spi:  # If SPI Object Passed
                 spi = external_spi
             else:  # Else: Make ESP32 connection
-                spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
+                spi = busio.SPI()  # without parameters is forgiving to being called twice
 
             self.esp = adafruit_esp32spi.ESP_SPIcontrol(
                 spi, esp32_cs, esp32_ready, esp32_reset, esp32_gpio0
