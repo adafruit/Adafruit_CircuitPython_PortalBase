@@ -63,7 +63,6 @@ class WiFi:
                 spi = external_spi
             else:  # Else: Make ESP32 connection
                 spi = board.SPI()
-                  
 
             self.esp = adafruit_esp32spi.ESP_SPIcontrol(
                 spi, esp32_cs, esp32_ready, esp32_reset, esp32_gpio0
