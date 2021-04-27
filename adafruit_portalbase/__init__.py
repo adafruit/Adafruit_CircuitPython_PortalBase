@@ -170,6 +170,8 @@ class PortalBase:
         :param (float,float) text_anchor_point: Values between 0 and 1 to indicate where the text
                                                  position is relative to the label
         :param bool is_data: If True, fetch will attempt to update the label
+        :param str text: If this is provided, it will set the initial text of the label.
+
         """
         if not text_wrap:
             text_wrap = 0
