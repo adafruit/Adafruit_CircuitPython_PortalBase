@@ -22,7 +22,6 @@ Implementation Notes
 
 import gc
 import board
-import busio
 from digitalio import DigitalInOut
 from adafruit_esp32spi import adafruit_esp32spi, adafruit_esp32spi_wifimanager
 import adafruit_esp32spi.adafruit_esp32spi_socket as socket
@@ -54,16 +53,16 @@ class WiFi:
 
         if esp:  # If there was a passed ESP Object
             self.esp = esp
-            if external_spi:  # If SPI Object Passed
-                spi = external_spi
-            else:  # Else: Make ESP32 connection
-                spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
         else:
             esp32_ready = DigitalInOut(board.ESP_BUSY)
             esp32_gpio0 = DigitalInOut(board.ESP_GPIO0)
             esp32_reset = DigitalInOut(board.ESP_RESET)
             esp32_cs = DigitalInOut(board.ESP_CS)
-            spi = board.SPI()
+
+            if external_spi:  # If SPI Object Passed
+                spi = external_spi
+            else:  # Else: Make ESP32 connection
+                spi = board.SPI()
 
             self.esp = adafruit_esp32spi.ESP_SPIcontrol(
                 spi, esp32_cs, esp32_ready, esp32_reset, esp32_gpio0
