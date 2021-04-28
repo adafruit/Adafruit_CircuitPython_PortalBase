@@ -98,3 +98,9 @@ class WiFi:
 
         """
         return wifi.radio.enabled
+
+    @enabled.setter
+    def enabled(self, value):
+        wifi.radio.enabled = bool(value)
+        if not wifi.radio.enabled:
+            self._connected = False
