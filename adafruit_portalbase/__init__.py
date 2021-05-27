@@ -392,7 +392,7 @@ class PortalBase:
         if self._text:
             value_index = 0  # In case values and text is not the same
             for i in range(len(self._text)):
-                if not self._text[i]["is_data"]:
+                if not self._text[i]["is_data"] or value_index > len(values) - 1:
                     continue
                 string = None
                 if self._text[i]["transform"]:
