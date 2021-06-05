@@ -224,9 +224,9 @@ class PortalBase:
         if not self._text:
             self.add_text()
         string = str(val)
-        if self._text[index]["maxlen"]:
+        if self._text[index]["maxlen"] and len(string) > self._text[index]["maxlen"]:
+            # too long! shorten it
             if len(string) >= 3:
-                # too long! shorten it
                 string = string[: self._text[index]["maxlen"] - 3] + "..."
             else:
                 string = string[: self._text[index]["maxlen"]]
