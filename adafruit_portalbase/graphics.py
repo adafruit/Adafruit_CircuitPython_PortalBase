@@ -48,11 +48,11 @@ class GraphicsBase:
 
         if self._debug:
             print("Init display")
-        self.splash = displayio.Group(max_size=15, scale=scale)
+        self.splash = displayio.Group(scale=scale)
         self._qr_group = None
         if self._debug:
             print("Init background")
-        self._bg_group = displayio.Group(max_size=1)
+        self._bg_group = displayio.Group()
         self._bg_file = None
         self.splash.append(self._bg_group)
 
