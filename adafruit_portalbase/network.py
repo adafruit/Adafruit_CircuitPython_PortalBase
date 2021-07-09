@@ -362,11 +362,13 @@ class NetworkBase:
         self._io_client = IO_HTTP(aio_username, aio_key, self._wifi.requests)
         return self._io_client
 
-    def push_to_io(self, feed_key, data):
+    def push_to_io(self, feed_key, data, metadata=None, precision=None):
         """Push data to an adafruit.io feed
 
         :param str feed_key: Name of feed key to push data to.
         :param data: data to send to feed
+        :param dict metadata: Optional metadata associated with the data
+        :param int precision: Optional amount of precision points to send with floating point data
 
         """
 
@@ -385,7 +387,7 @@ class NetworkBase:
 
         while True:
             try:
-                io_client.send_data(feed_id["key"], data)
+                io_client.send_data(feed_id["key"], data, metadata, precision)
             except RuntimeError as exception:
                 print("An error occured, retrying! 2 -", exception)
                 continue
