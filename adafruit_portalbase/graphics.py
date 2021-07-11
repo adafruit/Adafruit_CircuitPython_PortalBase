@@ -85,7 +85,11 @@ class GraphicsBase:
             background = displayio.OnDiskBitmap(self._bg_file)
             self._bg_sprite = displayio.TileGrid(
                 background,
-                pixel_shader=displayio.ColorConverter(),
+                pixel_shader=getattr(
+                    background, "pixel_shader", displayio.ColorConverter()
+                ),
+                # TODO: Once CP6 is no longer supported, replace the above line with below
+                # pixel_shader=background.pixel_shader,
                 x=position[0],
                 y=position[1],
             )
