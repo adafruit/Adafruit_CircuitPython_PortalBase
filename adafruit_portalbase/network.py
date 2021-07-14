@@ -348,7 +348,7 @@ class NetworkBase:
                 if max_attempts is not None and attempt >= max_attempts:
                     raise OSError(
                         "Maximum number of attempts reached when trying to connect to WiFi"
-                    )
+                    ) from error
                 print("Could not connect to internet", error)
                 print("Retrying in 3 seconds...")
                 attempt += 1
