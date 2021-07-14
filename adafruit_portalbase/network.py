@@ -316,11 +316,12 @@ class NetworkBase:
         if not content_length == os.stat(filename)[6]:
             raise RuntimeError
 
-    def connect(self):
+    def connect(self, max_attempts=10):
         """
         Connect to WiFi using the settings found in secrets.py
         """
         self._wifi.neo_status(STATUS_CONNECTING)
+        attempt = 1
         while not self._wifi.is_connected:
             # secrets dictionary must contain 'ssid' and 'password' at a minimum
             print("Connecting to AP", self._secrets["ssid"])
@@ -340,8 +341,11 @@ class NetworkBase:
                 self._wifi.connect(self._secrets["ssid"], self._secrets["password"])
                 self.requests = self._wifi.requests
             except RuntimeError as error:
+                if max_attempts is not None and attempt >= max_attempts:
+                    raise OSError("Maximum attempts reached when trying to connect to WiFi")
                 print("Could not connect to internet", error)
                 print("Retrying in 3 seconds...")
+                attempt += 1
                 time.sleep(3)
             gc.collect()
 
