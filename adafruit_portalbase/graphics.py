@@ -123,7 +123,7 @@ class GraphicsBase:
         import adafruit_miniqr  # pylint: disable=import-outside-toplevel
 
         # generate the QR code
-        for qrtype in range(1, 5):
+        for qrtype in range(1, 6):
             try:
                 qrcode = adafruit_miniqr.QRCode(qr_type=qrtype)
                 qrcode.add_data(qr_data)
