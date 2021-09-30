@@ -410,15 +410,17 @@ class PortalBase:
         """Accessor function for get_local_time()"""
         return self.network.get_local_time(location=location)
 
-    def push_to_io(self, feed_key, data):
+    def push_to_io(self, feed_key, data, metadata=None, precision=None):
         """Push data to an adafruit.io feed
 
         :param str feed_key: Name of feed key to push data to.
         :param data: data to send to feed
+        :param dict metadata: Optional metadata associated with the data
+        :param int precision: Optional amount of precision points to send with floating point data
 
         """
 
-        self.network.push_to_io(feed_key, data)
+        self.network.push_to_io(feed_key, data, metadata=metadata, precision=precision)
 
     def get_io_data(self, feed_key):
         """Return all values from the Adafruit IO Feed Data that matches the feed key
