@@ -290,22 +290,21 @@ class NetworkBase:
         remaining = content_length
         print("Saving data to ", filename)
         stamp = time.monotonic()
-        file = open(filename, "wb")
-        for i in response.iter_content(min(remaining, chunk_size)):  # huge chunks!
-            self.neo_status(STATUS_DOWNLOADING)
-            remaining -= len(i)
-            file.write(i)
-            if self._debug:
-                print(
-                    "Read %d bytes, %d remaining"
-                    % (content_length - remaining, remaining)
-                )
-            else:
-                print(".", end="")
-            if not remaining:
-                break
-            self.neo_status(STATUS_FETCHING)
-        file.close()
+        with open(filename, "wb") as file:
+            for i in response.iter_content(min(remaining, chunk_size)):  # huge chunks!
+                self.neo_status(STATUS_DOWNLOADING)
+                remaining -= len(i)
+                file.write(i)
+                if self._debug:
+                    print(
+                        "Read %d bytes, %d remaining"
+                        % (content_length - remaining, remaining)
+                    )
+                else:
+                    print(".", end="")
+                if not remaining:
+                    break
+                self.neo_status(STATUS_FETCHING)
 
         response.close()
         stamp = time.monotonic() - stamp

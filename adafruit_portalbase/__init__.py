@@ -391,7 +391,7 @@ class PortalBase:
         # fill out all the text blocks
         if self._text:
             value_index = 0  # In case values and text is not the same
-            for i in range(len(self._text)):
+            for i in range(len(self._text)):  # pylint: disable=consider-using-enumerate
                 if (not self._text[i]["is_data"]) or (value_index > (len(values) - 1)):
                     continue
                 string = None
@@ -400,7 +400,9 @@ class PortalBase:
                     string = func(values[value_index])
                 else:
                     try:
-                        string = "{:,d}".format(int(values[value_index]))
+                        string = "{:,d}".format(
+                            int(values[value_index])
+                        )  # pylint: disable=consider-using-f-string
                     except (TypeError, ValueError):
                         string = values[value_index]  # ok it's a string
                 self._fetch_set_text(string, index=i)
