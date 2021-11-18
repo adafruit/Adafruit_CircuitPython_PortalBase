@@ -81,8 +81,8 @@ class GraphicsBase:
         if self._bg_file:
             self._bg_file.close()
         if isinstance(file_or_color, str):  # its a filenme:
-            self._bg_file = open(file_or_color, "rb")
-            background = displayio.OnDiskBitmap(self._bg_file)
+            with open(file_or_color, "rb") as self._bg_file:
+                background = displayio.OnDiskBitmap(self._bg_file)
             self._bg_sprite = displayio.TileGrid(
                 background,
                 pixel_shader=getattr(
