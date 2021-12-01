@@ -53,7 +53,6 @@ class GraphicsBase:
         if self._debug:
             print("Init background")
         self._bg_group = displayio.Group()
-        self._bg_file = None
         self.splash.append(self._bg_group)
 
         # set the default background
@@ -78,18 +77,11 @@ class GraphicsBase:
 
         if not file_or_color:
             return  # we're done, no background desired
-        if self._bg_file:
-            self._bg_file.close()
         if isinstance(file_or_color, str):  # its a filenme:
-            with open(file_or_color, "rb") as self._bg_file:
-                background = displayio.OnDiskBitmap(self._bg_file)
+            background = displayio.OnDiskBitmap(file_or_color)
             self._bg_sprite = displayio.TileGrid(
                 background,
-                pixel_shader=getattr(
-                    background, "pixel_shader", displayio.ColorConverter()
-                ),
-                # TODO: Once CP6 is no longer supported, replace the above line with below
-                # pixel_shader=background.pixel_shader,
+                pixel_shader=background.pixel_shader,
                 x=position[0],
                 y=position[1],
             )

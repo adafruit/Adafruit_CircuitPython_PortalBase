@@ -312,28 +312,68 @@ class PortalBase:
             if self._text[index]["label"] is not None:
                 self._text[index]["label"].color = color
 
-    def exit_and_deep_sleep(self, sleep_time):
+    def create_time_alarm(self, sleep_time):
         """
-        Stops the current program and enters deep sleep. The program is restarted from the beginning
-        after a certain period of time.
-
-        See https://circuitpython.readthedocs.io/en/latest/shared-bindings/alarm/index.html for more
-        details.
+        Create a TimeAlarm based on the specified amount of delay
 
         :param float sleep_time: The amount of time to sleep in seconds
 
         """
         if self._alarm:
-            pause = self._alarm.time.TimeAlarm(
+            return self._alarm.time.TimeAlarm(
                 monotonic_time=time.monotonic() + sleep_time
             )
-            self._alarm.exit_and_deep_sleep_until_alarms(pause)
-        else:
-            raise NotImplementedError(
-                "Deep sleep not supported. Make sure you have the latest CircuitPython."
-            )
+        raise NotImplementedError(
+            "Alarms not supported. Make sure you have the latest CircuitPython."
+        )
 
-    def enter_light_sleep(self, sleep_time):
+    def create_pin_alarm(self, pin, value, edge=False, pull=False):
+        """
+        Create a PinAlarm that is triggered when the pin has a specific value
+
+        :param microcontroller.Pin pin: The trigger pin.
+        :param bool value: The value on which to trigger.
+        :param bool edge:  Trigger only when there is a transition.
+        :param bool pull: Enable a pull-up or pull-down for the ``pin``.
+
+        """
+        if self._alarm:
+            return self._alarm.time.PinAlarm(pin, value, edge, pull)
+        raise NotImplementedError(
+            "Alarms not supported. Make sure you have the latest CircuitPython."
+        )
+
+    def create_touch_alarm(self, pin):
+        """
+        Create a TouchAlarm that is triggered when the pin is touched.
+
+        :param microcontroller.Pin pin: The trigger pin.
+        """
+        if self._alarm:
+            return self._alarm.time.TouchAlarm(pin)
+        raise NotImplementedError(
+            "Alarms not supported. Make sure you have the latest CircuitPython."
+        )
+
+    def exit_and_deep_sleep(self, alarms):
+        """
+        Stops the current program and enters deep sleep. The program is restarted from the beginning
+        after the alarm or alarms are triggered.
+
+        See https://circuitpython.readthedocs.io/en/latest/shared-bindings/alarm/index.html for more
+        details.
+
+        :param float alarms: The alarm or alarms to use as a trigger
+
+        """
+
+        # For backwards compatibility
+        if isinstance(alarms, (float, int)):
+            alarms = self.create_time_alarm(alarms)
+
+        self._alarm.exit_and_deep_sleep_until_alarms(alarms)
+
+    def enter_light_sleep(self, alarms):
         """
         Enter light sleep and resume the program after a certain period of time.
 
@@ -343,15 +383,11 @@ class PortalBase:
         :param float sleep_time: The amount of time to sleep in seconds
 
         """
-        if self._alarm:
-            pause = self._alarm.time.TimeAlarm(
-                monotonic_time=time.monotonic() + sleep_time
-            )
-            self._alarm.light_sleep_until_alarms(pause)
-        else:
-            raise NotImplementedError(
-                "Hardware light sleep not supported. Make sure you have the latest CircuitPython."
-            )
+        # For backwards compatibility
+        if isinstance(alarms, (float, int)):
+            alarms = self.create_time_alarm(alarms)
+
+        self._alarm.light_sleep_until_alarms(alarms)
 
     def _fetch_set_text(self, val, index=0):
         self.set_text(val, index=index)
