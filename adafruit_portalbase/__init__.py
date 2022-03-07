@@ -214,10 +214,15 @@ class PortalBase:
     # pylint: enable=too-many-arguments
 
     def remove_all_text(self, clear_font_cache=False):
-        """Remove all added text.
+        """Remove all added text and labels.
 
         :param bool clear_font_cache: Clear the font cache. Defaults to False.
         """
+
+        # Remove the labels
+        for i in range(len(self._text)):
+            self.set_text("", i)
+        # Remove the data
         self._text = []
         if clear_font_cache:
             self._fonts = {}
