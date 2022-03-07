@@ -226,6 +226,7 @@ class PortalBase:
         self._text = []
         if clear_font_cache:
             self._fonts = {}
+        gc.collect()
 
     def set_text(self, val, index=0):
         """Display text, with indexing into our list of text boxes.
