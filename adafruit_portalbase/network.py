@@ -248,19 +248,21 @@ class NetworkBase:
 
         return reply
 
-    def wget(self, url, filename, *, chunk_size=12000):
+    def wget(self, url, filename, *, chunk_size=12000, headers=None):
         """Download a url and save to filename location, like the command wget.
 
         :param url: The URL from which to obtain the data.
         :param filename: The name of the file to save the data to.
         :param chunk_size: how much data to read/write at a time.
+        :param headers: a dict of headers to send along in the request.
 
         """
         print("Fetching stream from", url)
 
         self.neo_status(STATUS_FETCHING)
-        response = self._wifi.requests.get(url, stream=True)
+        response = self._wifi.requests.get(url, headers=headers, stream=True)
 
+        # we re-use this variable, now dealing with response headers
         headers = {}
         for title, content in response.headers.items():
             headers[title.lower()] = content
