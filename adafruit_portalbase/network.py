@@ -343,7 +343,7 @@ class NetworkBase:
             try:
                 self._wifi.connect(self._secrets["ssid"], self._secrets["password"])
                 self.requests = self._wifi.requests
-            except RuntimeError as error:
+            except ConnectionError as error:
                 if max_attempts is not None and attempt >= max_attempts:
                     raise OSError(
                         "Maximum number of attempts reached when trying to connect to WiFi"
