@@ -31,6 +31,8 @@ autodoc_mock_imports = [
     "secrets",
     "wifi",
     "socketpool",
+    "terminalio",
+    "displayio",
 ]
 
 intersphinx_mapping = {
