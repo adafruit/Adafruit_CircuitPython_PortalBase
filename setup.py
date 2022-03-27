@@ -44,6 +44,7 @@ setup(
         "adafruit-circuitpython-adafruitio",
         "adafruit-circuitpython-simpleio",
         "adafruit-circuitpython-fakerequests",
+        "adafruit-circuitpython-miniqr",
     ],
     # Choose your license
     license="MIT",
