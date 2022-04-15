@@ -113,7 +113,7 @@ class NetworkBase:
             self._secrets_network = [
                 {
                     "ssid": self._secrets["ssid"],
-                    "passwprd": self._secrets["password"],
+                    "password": self._secrets["password"],
                 }
             ]
 
