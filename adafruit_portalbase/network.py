@@ -347,7 +347,7 @@ class NetworkBase:
 
             while not self._wifi.is_connected:
                 # secrets dictionary must contain 'ssid' and 'password' at a minimum
-                print("Connecting to AP", self._secrets["ssid"])
+                print("Connecting to AP", secret_entry["ssid"])
                 if (
                     secret_entry["ssid"] == "CHANGE ME"
                     or secret_entry["password"] == "CHANGE ME"
