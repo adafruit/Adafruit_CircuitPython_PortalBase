@@ -494,9 +494,7 @@ class PortalBase:
         if self.network is None:
             raise RuntimeError("network must not be None to use push_to_io()")
 
-        self.network.push_to_io(
-            feed_key, data, metadata=metadata, precision=precision
-        )
+        self.network.push_to_io(feed_key, data, metadata=metadata, precision=precision)
 
     def get_io_data(self, feed_key):
         """Return all values from the Adafruit IO Feed Data that matches the feed key
