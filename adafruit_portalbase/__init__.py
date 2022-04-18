@@ -477,10 +477,10 @@ class PortalBase:
 
     def get_local_time(self, location=None):
         """Accessor function for get_local_time()"""
-        if self.network is not None:
-            return self.network.get_local_time(location=location)
+        if self.network is None:
+            raise RuntimeError("network must not be None to use get_local_time()")
 
-        raise RuntimeError("network must not be None to use get_local_time()")
+        return self.network.get_local_time(location=location)
 
     def push_to_io(self, feed_key, data, metadata=None, precision=None):
         """Push data to an adafruit.io feed
@@ -491,12 +491,12 @@ class PortalBase:
         :param int precision: Optional amount of precision points to send with floating point data
 
         """
-        if self.network is not None:
-            self.network.push_to_io(
-                feed_key, data, metadata=metadata, precision=precision
-            )
-        else:
+        if self.network is None:
             raise RuntimeError("network must not be None to use push_to_io()")
+
+        self.network.push_to_io(
+            feed_key, data, metadata=metadata, precision=precision
+        )
 
     def get_io_data(self, feed_key):
         """Return all values from the Adafruit IO Feed Data that matches the feed key
@@ -504,10 +504,10 @@ class PortalBase:
         :param str feed_key: Name of feed key to receive data from.
 
         """
-        if self.network is not None:
-            return self.network.get_io_data(feed_key)
+        if self.network is None:
+            raise RuntimeError("network must not be None to use get_io_data()")
 
-        raise RuntimeError("network must not be None to use get_io_data()")
+        return self.network.get_io_data(feed_key)
 
     def get_io_feed(self, feed_key, detailed=False):
         """Return the Adafruit IO Feed that matches the feed key
@@ -516,10 +516,10 @@ class PortalBase:
         :param bool detailed: Whether to return additional detailed information
 
         """
-        if self.network is not None:
-            return self.network.get_io_feed(feed_key, detailed)
+        if self.network is None:
+            raise RuntimeError("network must not be None to use get_io_feed()")
 
-        raise RuntimeError("network must not be None to use get_io_feed()")
+        return self.network.get_io_feed(feed_key, detailed)
 
     def get_io_group(self, group_key):
         """Return the Adafruit IO Group that matches the group key
@@ -527,10 +527,9 @@ class PortalBase:
         :param str group_key: Name of group key to match.
 
         """
-        if self.network is not None:
-            return self.network.get_io_group(group_key)
-
-        raise RuntimeError("network must not be None to use get_io_group()")
+        if self.network is None:
+            raise RuntimeError("network must not be None to use get_io_group()")
+        return self.network.get_io_group(group_key)
 
     @property
     def json_path(self):
