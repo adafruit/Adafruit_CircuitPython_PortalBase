@@ -38,7 +38,8 @@ try:
 except ImportError:
     print(
         """WiFi settings are kept in secrets.py, please add them there!
-the secrets dictionary must contain 'ssid' and 'password' at a minimum"""
+the secrets dictionary must contain 'ssid' and 'password' at a minimum
+in order to use network related features"""
     )
 
 __version__ = "0.0.0-auto.0"
