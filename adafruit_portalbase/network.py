@@ -364,7 +364,7 @@ class NetworkBase:
                     self._wifi.connect(secret_entry["ssid"], secret_entry["password"])
                     self.requests = self._wifi.requests
                     break
-                except ConnectionError as error:
+                except (RuntimeError, ConnectionError) as error:
                     if max_attempts is not None and attempt >= max_attempts:
                         break
                     print("Could not connect to internet", error)
