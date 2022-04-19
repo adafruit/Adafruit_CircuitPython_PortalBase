@@ -102,6 +102,21 @@ class NetworkBase:
         else:
             self._secrets = secrets
 
+        if "networks" in self._secrets:
+            if isinstance(self._secrets["networks"], (list, tuple)):
+                self._secrets_network = self._secrets["networks"]
+            else:
+                raise TypeError(
+                    "'networks' must be a list/tuple of dicts of 'ssid' and 'password'"
+                )
+        else:
+            self._secrets_network = [
+                {
+                    "ssid": self._secrets["ssid"],
+                    "password": self._secrets["password"],
+                }
+            ]
+
         self.requests = None
 
         try:
@@ -325,36 +340,45 @@ class NetworkBase:
                              failing or use None to disable. Defaults to 10.
 
         """
-        self._wifi.neo_status(STATUS_CONNECTING)
-        attempt = 1
-        while not self._wifi.is_connected:
-            # secrets dictionary must contain 'ssid' and 'password' at a minimum
-            print("Connecting to AP", self._secrets["ssid"])
-            if (
-                self._secrets["ssid"] == "CHANGE ME"
-                or self._secrets["password"] == "CHANGE ME"
-            ):
-                change_me = "\n" + "*" * 45
-                change_me += "\nPlease update the 'secrets.py' file on your\n"
-                change_me += "CIRCUITPY drive to include your local WiFi\n"
-                change_me += "access point SSID name in 'ssid' and SSID\n"
-                change_me += "password in 'password'. Then save to reload!\n"
-                change_me += "*" * 45
-                raise OSError(change_me)
-            self._wifi.neo_status(STATUS_NO_CONNECTION)  # red = not connected
-            try:
-                self._wifi.connect(self._secrets["ssid"], self._secrets["password"])
-                self.requests = self._wifi.requests
-            except ConnectionError as error:
-                if max_attempts is not None and attempt >= max_attempts:
-                    raise OSError(
-                        "Maximum number of attempts reached when trying to connect to WiFi"
-                    ) from error
-                print("Could not connect to internet", error)
-                print("Retrying in 3 seconds...")
-                attempt += 1
-                time.sleep(3)
-            gc.collect()
+        for secret_entry in self._secrets_network:
+
+            self._wifi.neo_status(STATUS_CONNECTING)
+            attempt = 1
+
+            while not self._wifi.is_connected:
+                # secrets dictionary must contain 'ssid' and 'password' at a minimum
+                print("Connecting to AP", secret_entry["ssid"])
+                if (
+                    secret_entry["ssid"] == "CHANGE ME"
+                    or secret_entry["password"] == "CHANGE ME"
+                ):
+                    change_me = "\n" + "*" * 45
+                    change_me += "\nPlease update the 'secrets.py' file on your\n"
+                    change_me += "CIRCUITPY drive to include your local WiFi\n"
+                    change_me += "access point SSID name in 'ssid' and SSID\n"
+                    change_me += "password in 'password'. Then save to reload!\n"
+                    change_me += "*" * 45
+                    raise OSError(change_me)
+                self._wifi.neo_status(STATUS_NO_CONNECTION)  # red = not connected
+                try:
+                    self._wifi.connect(secret_entry["ssid"], secret_entry["password"])
+                    self.requests = self._wifi.requests
+                    break
+                except (RuntimeError, ConnectionError) as error:
+                    if max_attempts is not None and attempt >= max_attempts:
+                        break
+                    print("Could not connect to internet", error)
+                    print("Retrying in 3 seconds...")
+                    attempt += 1
+                    time.sleep(3)
+                gc.collect()
+
+            if self._wifi.is_connected:
+                return
+
+        raise OSError(
+            "Maximum number of attempts reached when trying to connect to WiFi"
+        )
 
     def _get_io_client(self):
         if self._io_client is not None:
