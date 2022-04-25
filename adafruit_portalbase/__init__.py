@@ -85,17 +85,32 @@ class PortalBase:
         except ImportError:
             self._alarm = None
         self._debug = debug
+        if url and self.network is None:
+            raise RuntimeError("network must not be None to get data from a url")
         self.url = url
+        if headers and self.network is None:
+            raise RuntimeError("network must not be None to send headers")
         self._headers = headers
+        if json_path and self.network is None:
+            raise RuntimeError("network must not be None to use json_path")
         self._json_path = None
         self.json_path = json_path
 
+        if regexp_path and self.network is None:
+            raise RuntimeError("network must not be None to use regexp_path")
         self._regexp_path = regexp_path
+
+        if success_callback and self.network is None:
+            raise RuntimeError("network must not be None to use success_callback")
         self._success_callback = success_callback
 
         # Add any JSON translators
+
         if json_transform:
-            self.network.add_json_transform(json_transform)
+            if self.network is not None:
+                self.network.add_json_transform(json_transform)
+            else:
+                raise RuntimeError("network must not be None to use json_transform.")
 
     def _load_font(self, font):
         """
@@ -416,6 +431,9 @@ class PortalBase:
         :param int timeout: The timeout period in seconds.
 
         """
+
+        if self.network is None:
+            raise RuntimeError("network must not be None to use fetch()")
         if refresh_url:
             self.url = refresh_url
         values = []
@@ -459,6 +477,9 @@ class PortalBase:
 
     def get_local_time(self, location=None):
         """Accessor function for get_local_time()"""
+        if self.network is None:
+            raise RuntimeError("network must not be None to use get_local_time()")
+
         return self.network.get_local_time(location=location)
 
     def push_to_io(self, feed_key, data, metadata=None, precision=None):
@@ -470,6 +491,8 @@ class PortalBase:
         :param int precision: Optional amount of precision points to send with floating point data
 
         """
+        if self.network is None:
+            raise RuntimeError("network must not be None to use push_to_io()")
 
         self.network.push_to_io(feed_key, data, metadata=metadata, precision=precision)
 
@@ -479,6 +502,8 @@ class PortalBase:
         :param str feed_key: Name of feed key to receive data from.
 
         """
+        if self.network is None:
+            raise RuntimeError("network must not be None to use get_io_data()")
 
         return self.network.get_io_data(feed_key)
 
@@ -489,6 +514,9 @@ class PortalBase:
         :param bool detailed: Whether to return additional detailed information
 
         """
+        if self.network is None:
+            raise RuntimeError("network must not be None to use get_io_feed()")
+
         return self.network.get_io_feed(feed_key, detailed)
 
     def get_io_group(self, group_key):
@@ -497,6 +525,8 @@ class PortalBase:
         :param str group_key: Name of group key to match.
 
         """
+        if self.network is None:
+            raise RuntimeError("network must not be None to use get_io_group()")
         return self.network.get_io_group(group_key)
 
     @property
@@ -509,6 +539,9 @@ class PortalBase:
 
     @json_path.setter
     def json_path(self, value):
+        if value is not None and self.network is None:
+            raise RuntimeError("network must not be None to use json_path.")
+
         if value:
             if isinstance(value[0], (list, tuple)):
                 self._json_path = value
