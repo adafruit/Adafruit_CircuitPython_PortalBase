@@ -106,12 +106,19 @@ class GraphicsBase:
     ):  # pylint: disable=invalid-name
         """Display a QR code
 
-        :param qr_data: The data for the QR code.
+        :param qr_data: The data for the QR code, None to remove.
         :param int qr_size: The scale of the QR code.
         :param x: The x position of upper left corner of the QR code on the display.
         :param y: The y position of upper left corner of the QR code on the display.
 
         """
+        if qr_data is None:
+            if self._qr_group and self._qr_group in self.splash:
+                self.splash.remove(self._qr_group)
+            self._qr_group = None
+            gc.collect()
+            return
+
         import adafruit_miniqr  # pylint: disable=import-outside-toplevel
 
         # generate the QR code
