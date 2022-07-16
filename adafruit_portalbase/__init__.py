@@ -373,7 +373,7 @@ class PortalBase:
 
         """
         if self._alarm:
-            return self._alarm.time.PinAlarm(pin, value, edge, pull)
+            return self._alarm.pin.PinAlarm(pin, value, edge, pull)
         raise NotImplementedError(
             "Alarms not supported. Make sure you have the latest CircuitPython."
         )
@@ -385,7 +385,7 @@ class PortalBase:
         :param microcontroller.Pin pin: The trigger pin.
         """
         if self._alarm:
-            return self._alarm.time.TouchAlarm(pin)
+            return self._alarm.touch.TouchAlarm(pin)
         raise NotImplementedError(
             "Alarms not supported. Make sure you have the latest CircuitPython."
         )
