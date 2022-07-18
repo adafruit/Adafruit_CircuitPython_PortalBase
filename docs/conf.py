@@ -33,6 +33,7 @@ autodoc_mock_imports = [
     "socketpool",
     "terminalio",
     "displayio",
+    "adafruit_esp32spi",
 ]
 
 intersphinx_mapping = {
