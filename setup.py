@@ -39,6 +39,7 @@ setup(
         "adafruit-blinka-displayio",
         "adafruit-circuitpython-bitmap-font",
         "adafruit-circuitpython-display-text",
+        "adafruit-circuitpython-esp32spi",
         "adafruit-circuitpython-neopixel",
         "adafruit-circuitpython-requests",
         "adafruit-circuitpython-adafruitio",
