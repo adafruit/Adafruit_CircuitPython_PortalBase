@@ -686,3 +686,8 @@ class NetworkBase:
 
             values = json.dumps(json_data)
         return values
+
+    @property
+    def is_connected(self):
+    """Return whether we are connected."""
+        return self._wifi.is_connected
