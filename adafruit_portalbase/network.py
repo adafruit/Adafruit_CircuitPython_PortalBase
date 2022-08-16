@@ -42,7 +42,7 @@ the secrets dictionary must contain 'ssid' and 'password' at a minimum
 in order to use network related features"""
     )
 
-__version__ = "0.0.0-auto.0"
+__version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
 
 # pylint: disable=line-too-long, too-many-lines
