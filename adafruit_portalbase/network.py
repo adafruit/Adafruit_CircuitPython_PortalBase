@@ -102,21 +102,7 @@ class NetworkBase:
             self._secrets = secrets_data
         else:
             self._secrets = secrets
-
-        if "networks" in self._secrets:
-            if isinstance(self._secrets["networks"], (list, tuple)):
-                self._secrets_network = self._secrets["networks"]
-            else:
-                raise TypeError(
-                    "'networks' must be a list/tuple of dicts of 'ssid' and 'password'"
-                )
-        else:
-            self._secrets_network = [
-                {
-                    "ssid": self._secrets["ssid"],
-                    "password": self._secrets["password"],
-                }
-            ]
+        self._secrets_network = None
 
         self.requests = None
 
@@ -341,6 +327,23 @@ class NetworkBase:
                              failing or use None to disable. Defaults to 10.
 
         """
+
+        if not self._secrets_network:
+            if "networks" in self._secrets:
+                if isinstance(self._secrets["networks"], (list, tuple)):
+                    self._secrets_network = self._secrets["networks"]
+                else:
+                    raise TypeError(
+                        "'networks' must be a list/tuple of dicts of 'ssid' and 'password'"
+                    )
+            else:
+                self._secrets_network = [
+                    {
+                        "ssid": self._secrets["ssid"],
+                        "password": self._secrets["password"],
+                    }
+                ]
+
         for secret_entry in self._secrets_network:
 
             self._wifi.neo_status(STATUS_CONNECTING)
