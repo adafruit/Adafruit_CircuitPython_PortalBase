@@ -73,7 +73,7 @@ class HttpError(Exception):
     """HTTP Specific Error"""
 
     def __init__(self, message="", response=None):
-        if message:
+        if message != "":
             super().__init__(message)
         else:
             super().__init__()
