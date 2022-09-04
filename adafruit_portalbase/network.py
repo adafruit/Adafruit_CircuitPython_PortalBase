@@ -72,6 +72,13 @@ CONTENT_IMAGE = const(3)
 class HttpError(Exception):
     """HTTP Specific Error"""
 
+    def __init__(self, message="", response=None):
+        if message:
+            super().__init__(message)
+        else:
+            super().__init__()
+        self.response = response
+
 
 class NetworkBase:
     """Network Base Class for the Portal-style libraries.
@@ -282,7 +289,8 @@ class NetworkBase:
             raise HttpError(
                 "Code {}: {}".format(
                     response.status_code, response.reason.decode("utf-8")
-                )
+                ),
+                response,
             )
 
         if self._debug:
@@ -554,7 +562,8 @@ class NetworkBase:
             raise HttpError(
                 "Code {}: {}".format(
                     response.status_code, response.reason.decode("utf-8")
-                )
+                ),
+                response,
             )
 
         return content_type
