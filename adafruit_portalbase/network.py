@@ -56,13 +56,14 @@ TIME_SERVICE_FORMAT = "%Y-%m-%d %H:%M:%S.%L %j %u %z %Z"
 LOCALFILE = "local.txt"
 # pylint: enable=line-too-long
 
-STATUS_NO_CONNECTION = (100, 0, 0)
-STATUS_CONNECTING = (0, 0, 100)
-STATUS_FETCHING = (200, 100, 0)
-STATUS_DOWNLOADING = (0, 100, 100)
-STATUS_CONNECTED = (0, 100, 0)
-STATUS_DATA_RECEIVED = (0, 0, 100)
-STATUS_OFF = (0, 0, 0)
+STATUS_NO_CONNECTION = (100, 0, 0)  # Red
+STATUS_CONNECTING = (0, 0, 100)  # Blue
+STATUS_FETCHING = (150, 100, 0)  # Orange
+STATUS_DOWNLOADING = (0, 100, 100)  # Cyan
+STATUS_CONNECTED = (0, 0, 100)  # Blue
+STATUS_DATA_RECEIVED = (0, 100, 0)  # Green
+STATUS_HTTP_ERROR = (100, 0, 0)  # Red
+STATUS_OFF = (0, 0, 0)  # Off
 
 CONTENT_TEXT = const(1)
 CONTENT_JSON = const(2)
@@ -171,10 +172,7 @@ class NetworkBase:
         """
         A function to perform minimal URL encoding
         """
-        url = url.replace(" ", "+")
-        url = url.replace("%", "%25")
-        url = url.replace(":", "%3A")
-        return url
+        return url.replace(" ", "+").replace("%", "%25").replace(":", "%3A")
 
     def get_strftime(self, time_format, location=None):
         """
@@ -206,13 +204,16 @@ class NetworkBase:
         api_url += "&fmt=" + self.url_encode(time_format)
 
         try:
+            self.neo_status(STATUS_FETCHING)
             response = self._wifi.requests.get(api_url, timeout=10)
+            self.neo_status(STATUS_DATA_RECEIVED)
             if response.status_code != 200:
                 print(response)
                 error_message = (
                     "Error connecting to Adafruit IO. The response was: "
                     + response.text
                 )
+                self.neo_status(STATUS_HTTP_ERROR)
                 raise RuntimeError(error_message)
             if self._debug:
                 print("Time request: ", api_url)
@@ -285,7 +286,7 @@ class NetworkBase:
                     print("Content-Length: {}".format(int(headers["content-length"])))
                 if "date" in headers:
                     print("Date: {}".format(headers["date"]))
-            self.neo_status((100, 0, 0))  # red = http error
+            self.neo_status(STATUS_HTTP_ERROR)  # red = http error
             raise HttpError(
                 "Code {}: {}".format(
                     response.status_code, response.reason.decode("utf-8")
@@ -375,6 +376,7 @@ class NetworkBase:
                 try:
                     self._wifi.connect(secret_entry["ssid"], secret_entry["password"])
                     self.requests = self._wifi.requests
+                    self._wifi.neo_status(STATUS_CONNECTED)
                     break
                 except (RuntimeError, ConnectionError) as error:
                     if max_attempts is not None and attempt >= max_attempts:
