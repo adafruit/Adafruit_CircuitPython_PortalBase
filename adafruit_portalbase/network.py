@@ -185,7 +185,6 @@ class NetworkBase:
         self.connect()
         api_url = None
         reply = None
-        print("Get time")
         try:
             aio_username = self._secrets["aio_username"]
             aio_key = self._secrets["aio_key"]
