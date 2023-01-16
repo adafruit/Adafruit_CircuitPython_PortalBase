@@ -170,9 +170,10 @@ class PortalBase:
         text_anchor_point=(0, 0.5),
         is_data=True,
         text=None,
-    ):
+    ) -> int:
         """
-        Add text labels with settings
+        Add text labels with settings. Returns the index of the label,
+        for use with ``set_text()`` and ``set_text_color()``.
 
         :param str text_font: The path to your font file for your data text display.
         :param text_position: The position of your extracted text on the display in an (x, y) tuple.
@@ -191,6 +192,9 @@ class PortalBase:
                                                  position is relative to the label
         :param bool is_data: If True, fetch will attempt to update the label
         :param str text: If this is provided, it will set the initial text of the label.
+
+        :return: Index of the new text label.
+        :rtype: int
 
         """
         if not text_wrap:
