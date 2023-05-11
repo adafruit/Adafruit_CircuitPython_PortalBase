@@ -460,6 +460,7 @@ class NetworkBase:
                 print("An error occured, retrying! 1 -", exception)
                 continue
             break
+        return None
 
     def get_io_group(self, group_key):
         """Return the Adafruit IO Group that matches the group key
@@ -476,6 +477,7 @@ class NetworkBase:
                 print("An error occured, retrying! 1 -", exception)
                 continue
             break
+        return None
 
     def get_io_data(self, feed_key):
         """Return all values from Adafruit IO Feed Data that matches the feed key
@@ -492,6 +494,7 @@ class NetworkBase:
                 print("An error occured, retrying! 1 -", exception)
                 continue
             break
+        return None
 
     def fetch(self, url, *, headers=None, timeout=10):
         """Fetch data from the specified url and return a response object
