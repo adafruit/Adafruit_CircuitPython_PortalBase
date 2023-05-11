@@ -354,7 +354,6 @@ class NetworkBase:
                 ]
 
         for secret_entry in self._secrets_network:
-
             self._wifi.neo_status(STATUS_CONNECTING)
             attempt = 1
 
@@ -607,7 +606,6 @@ class NetworkBase:
         json_path=None,
         regexp_path=None,
     ):
-
         json_out = None
         content_type = self.check_response(response)
 

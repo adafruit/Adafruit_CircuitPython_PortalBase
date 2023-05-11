@@ -43,7 +43,6 @@ class WiFi:
     """
 
     def __init__(self, *, status_led=None, esp=None, external_spi=None):
-
         if status_led:
             self.neopix = status_led
         else:

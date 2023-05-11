@@ -42,7 +42,6 @@ class GraphicsBase:
 
     # pylint: disable=too-many-instance-attributes, too-many-locals, too-many-branches, too-many-statements
     def __init__(self, display, *, default_bg=0x000000, scale=1, debug=False):
-
         self._debug = debug
         self.display = display
 
