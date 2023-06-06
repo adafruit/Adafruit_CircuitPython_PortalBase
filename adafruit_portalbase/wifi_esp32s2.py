@@ -6,7 +6,7 @@
 `adafruit_portalbase.wifi_esp32s2`
 ================================================================================
 
-WiFi Helper module for the ESP32-S2 based boards.
+WiFi Helper module for the ESP32-S2 and ESP32-S3 based boards.
 
 
 * Author(s): Melissa LeBlanc-Williams
@@ -32,7 +32,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
 
 
 class WiFi:
-    """Class representing the WiFi portion of the ESP32-S2.
+    """Class representing the WiFi portion of the ESP32-S2/ESP32-S3.
 
     :param status_led: The initialized object for status DotStar, NeoPixel, or RGB LED. Defaults
                        to ``None``, to not use the status LED
