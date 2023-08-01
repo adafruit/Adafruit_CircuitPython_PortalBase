@@ -28,6 +28,7 @@ extensions = [
 # autodoc module docs will fail to generate with a warning.
 autodoc_mock_imports = [
     "supervisor",
+    "bitmaptools",
     "rtc",
     "ssl",
     "secrets",
