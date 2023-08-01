@@ -33,15 +33,6 @@ try:
 except ImportError:
     rtc = None
 
-try:
-    from secrets import secrets
-except ImportError:
-    print(
-        """WiFi settings are kept in secrets.py, please add them there!
-the secrets dictionary must contain 'ssid' and 'password' at a minimum
-in order to use network related features"""
-    )
-
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
 
@@ -68,6 +59,13 @@ STATUS_OFF = (0, 0, 0)  # Off
 CONTENT_TEXT = const(1)
 CONTENT_JSON = const(2)
 CONTENT_IMAGE = const(3)
+
+OLD_SETTINGS = {
+    "CIRCUITPY_WIFI_SSID": "ssid",
+    "CIRCUITPY_WIFI_PASSWORD": "password",
+    "AIO_USERNAME": "aio_username",
+    "AIO_KEY": "aio_key",
+}
 
 
 class HttpError(Exception):
@@ -106,11 +104,13 @@ class NetworkBase:
             "application/geo+json",
         ]
 
+        self._settings = {}
         if secrets_data is not None:
-            self._secrets = secrets_data
-        else:
-            self._secrets = secrets
-        self._secrets_network = None
+            for key, value in secrets_data.items():
+                if key in OLD_SETTINGS:
+                    key = OLD_SETTINGS.get(key)
+                self._settings[key] = value
+        self._wifi_credentials = None
 
         self.requests = None
 
@@ -123,6 +123,35 @@ class NetworkBase:
         self._io_client = None
 
         gc.collect()
+
+    def _get_setting(self, setting_name, show_error=True):
+        if setting_name in self._settings:
+            return self._settings[setting_name]
+
+        old_setting_name = setting_name
+        if setting_name in OLD_SETTINGS:
+            old_setting_name = OLD_SETTINGS.get(setting_name)
+        if os.getenv(setting_name) is not None:
+            return os.getenv(setting_name)
+        try:
+            from secrets import secrets  # pylint: disable=import-outside-toplevel
+        except ImportError:
+            secrets = {}
+        if old_setting_name in secrets.keys():
+            self._settings[setting_name] = secrets[old_setting_name]
+            return self._settings[setting_name]
+        if show_error:
+            if setting_name in ("CIRCUITPY_WIFI_SSID", "CIRCUITPY_WIFI_PASSWORD"):
+                print(
+                    """WiFi settings are kept in settings.toml, please add them there!
+        the secrets dictionary must contain 'CIRCUITPY_WIFI_SSID' and 'CIRCUITPY_WIFI_PASSWORD'
+        at a minimum in order to use network related features"""
+                )
+            else:
+                print(
+                    f"{setting_name} not found. Please add this setting to settings.toml."
+                )
+        return None
 
     def neo_status(self, value):
         """The status NeoPixel.
@@ -186,15 +215,15 @@ class NetworkBase:
         api_url = None
         reply = None
         try:
-            aio_username = self._secrets["aio_username"]
-            aio_key = self._secrets["aio_key"]
+            aio_username = self._get_setting("AIO_USERNAME")
+            aio_key = self._get_setting("AIO_KEY")
         except KeyError:
             raise KeyError(
-                "\n\nOur time service requires a login/password to rate-limit. Please register for a free adafruit.io account and place the user/key in your secrets file under 'aio_username' and 'aio_key'"  # pylint: disable=line-too-long
+                "\n\nOur time service requires a login/password to rate-limit. Please register for a free adafruit.io account and place the user/key in your secrets file under 'AIO_USERNAME' and 'AIO_KEY'"  # pylint: disable=line-too-long
             ) from KeyError
 
         if location is None:
-            location = self._secrets.get("timezone", location)
+            location = self._get_setting("timezone", False)
         if location:
             print("Getting time for timezone", location)
             api_url = (TIME_SERVICE + "&tz=%s") % (aio_username, aio_key, location)
@@ -337,23 +366,24 @@ class NetworkBase:
 
         """
 
-        if not self._secrets_network:
-            if "networks" in self._secrets:
-                if isinstance(self._secrets["networks"], (list, tuple)):
-                    self._secrets_network = self._secrets["networks"]
+        if not self._wifi_credentials:
+            self._wifi_credentials = [
+                {
+                    "ssid": self._get_setting("CIRCUITPY_WIFI_SSID"),
+                    "password": self._get_setting("CIRCUITPY_WIFI_PASSWORD"),
+                }
+            ]
+
+            networks = self._get_setting("networks", False)
+            if networks is not None:
+                if isinstance(networks, (list, tuple)):
+                    self._wifi_credentials = networks
                 else:
                     raise TypeError(
                         "'networks' must be a list/tuple of dicts of 'ssid' and 'password'"
                     )
-            else:
-                self._secrets_network = [
-                    {
-                        "ssid": self._secrets["ssid"],
-                        "password": self._secrets["password"],
-                    }
-                ]
 
-        for secret_entry in self._secrets_network:
+        for secret_entry in self._wifi_credentials:
             self._wifi.neo_status(STATUS_CONNECTING)
             attempt = 1
 
@@ -365,10 +395,14 @@ class NetworkBase:
                     or secret_entry["password"] == "CHANGE ME"
                 ):
                     change_me = "\n" + "*" * 45
-                    change_me += "\nPlease update the 'secrets.py' file on your\n"
+                    change_me += "\nPlease update the 'settings.toml' file on your\n"
                     change_me += "CIRCUITPY drive to include your local WiFi\n"
-                    change_me += "access point SSID name in 'ssid' and SSID\n"
-                    change_me += "password in 'password'. Then save to reload!\n"
+                    change_me += (
+                        "access point SSID name in 'CIRCUITPY_WIFI_SSID' and SSID\n"
+                    )
+                    change_me += (
+                        "password in 'CIRCUITPY_WIFI_PASSWORD'. Then save to reload!\n"
+                    )
                     change_me += "*" * 45
                     raise OSError(change_me)
                 self._wifi.neo_status(STATUS_NO_CONNECTION)  # red = not connected
@@ -400,8 +434,8 @@ class NetworkBase:
         self.connect()
 
         try:
-            aio_username = self._secrets["aio_username"]
-            aio_key = self._secrets["aio_key"]
+            aio_username = self._get_setting("AIO_USERNAME")
+            aio_key = self._get_setting("AIO_KEY")
         except KeyError:
             raise KeyError(
                 "Adafruit IO secrets are kept in secrets.py, please add them there!\n\n"
