@@ -56,7 +56,7 @@ class GraphicsBase:
 
         # set the default background
         if default_bg is not None:
-            self.display.show(self.splash)
+            self.display.root_group = self.splash
             self.set_background(default_bg)
 
         gc.collect()
