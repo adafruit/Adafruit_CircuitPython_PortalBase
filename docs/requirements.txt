@@ -4,3 +4,4 @@
 
 sphinx>=4.0.0
 sphinxcontrib-jquery
+sphinx-rtd-theme
