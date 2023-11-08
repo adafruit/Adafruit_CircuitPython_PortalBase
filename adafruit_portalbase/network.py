@@ -36,7 +36,7 @@ except ImportError:
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
 
-# pylint: disable=line-too-long, too-many-lines
+# pylint: disable=line-too-long, too-many-lines, too-many-public-methods
 # you'll need to pass in an io username and key
 TIME_SERVICE = (
     "https://io.adafruit.com/api/v2/%s/integrations/time/strftime?x-aio-key=%s"
@@ -493,8 +493,6 @@ class NetworkBase:
             except RuntimeError as exception:
                 print("An error occured, retrying! 1 -", exception)
                 continue
-            break
-        return None
 
     def get_io_group(self, group_key):
         """Return the Adafruit IO Group that matches the group key
@@ -510,8 +508,6 @@ class NetworkBase:
             except RuntimeError as exception:
                 print("An error occured, retrying! 1 -", exception)
                 continue
-            break
-        return None
 
     def get_io_data(self, feed_key):
         """Return all values from Adafruit IO Feed Data that matches the feed key
@@ -527,8 +523,21 @@ class NetworkBase:
             except RuntimeError as exception:
                 print("An error occured, retrying! 1 -", exception)
                 continue
-            break
-        return None
+
+    def delete_io_data(self, feed_key: str, data_id: str):
+        """Return all values from Adafruit IO Feed Data that matches the feed key
+
+        :param str feed_key: Name of feed key to receive data from.
+
+        """
+        io_client = self._get_io_client()
+
+        while True:
+            try:
+                return io_client.delete_data(feed_key, data_id)
+            except RuntimeError as exception:
+                print("An error occured, retrying! 1 -", exception)
+                continue
 
     def fetch(self, url, *, headers=None, timeout=10):
         """Fetch data from the specified url and return a response object
@@ -740,3 +749,8 @@ class NetworkBase:
     def is_connected(self):
         """Return whether we are connected."""
         return self._wifi.is_connected
+
+    @property
+    def io_client(self):
+        """Return the Adafruit IO Client."""
+        return self._get_io_client()
