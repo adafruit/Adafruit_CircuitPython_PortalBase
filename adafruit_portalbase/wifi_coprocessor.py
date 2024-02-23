@@ -24,8 +24,8 @@ import gc
 import board
 from digitalio import DigitalInOut
 from adafruit_esp32spi import adafruit_esp32spi, adafruit_esp32spi_wifimanager
-import adafruit_esp32spi.adafruit_esp32spi_socket as socket
-import adafruit_requests as requests
+import adafruit_connection_manager
+import adafruit_requests
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
@@ -67,19 +67,23 @@ class WiFi:
                 spi, esp32_cs, esp32_ready, esp32_reset, esp32_gpio0
             )
 
-        requests.set_socket(socket, self.esp)
         if self.esp.is_connected:
-            self.requests = requests
+            self._set_requests()
         self._manager = None
 
         gc.collect()
+
+    def _set_requests(self):
+        pool = adafruit_connection_manager.get_radio_socketpool(self.esp)
+        ssl_context = adafruit_connection_manager.get_radio_ssl_context(self.esp)
+        self.requests = adafruit_requests.Session(pool, ssl_context)
 
     def connect(self, ssid, password):
         """
         Connect to WiFi using the settings found in secrets.py
         """
         self.esp.connect({"ssid": ssid, "password": password})
-        self.requests = requests
+        self._set_requests()
 
     def neo_status(self, value):
         """The status NeoPixel.

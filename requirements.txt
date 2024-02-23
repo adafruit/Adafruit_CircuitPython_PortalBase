@@ -5,6 +5,7 @@
 Adafruit-Blinka-displayio
 Adafruit-Blinka
 adafruit-circuitpython-bitmap-font
+adafruit-circuitpython-connectionmanager
 adafruit-circuitpython-display-text
 adafruit-circuitpython-neopixel
 adafruit-circuitpython-adafruitio
