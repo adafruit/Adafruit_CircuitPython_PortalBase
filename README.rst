@@ -26,6 +26,15 @@ Dependencies
 This driver depends on:
 
 * `Adafruit CircuitPython <https://github.com/adafruit/circuitpython>`_
+* `Adafruit CircuitPython Bitmap Font <https://github.com/adafruit/Adafruit_CircuitPython_Bitmap_Font/>`_
+* `Adafruit CircuitPython Connection Manager <https://github.com/adafruit/Adafruit_CircuitPython_ConnectionManager/>`_
+* `Adafruit CircuitPython Display Text <https://github.com/adafruit/Adafruit_CircuitPython_Display_Text/>`_
+* `Adafruit CircuitPython NeoPixel <https://github.com/adafruit/Adafruit_CircuitPython_NeoPixel/>`_
+* `Adafruit CircuitPython Adafruit IO <https://github.com/adafruit/Adafruit_CircuitPython_AdafruitIO/>`_
+* `Adafruit CircuitPython MiniQR <https://github.com/adafruit/Adafruit_CircuitPython_MiniQR/>`_
+* `Adafruit CircuitPython Requests <https://github.com/adafruit/Adafruit_CircuitPython_Requests/>`_
+* `Adafruit CircuitPython Fake Requests <https://github.com/adafruit/Adafruit_CircuitPython_FakeRequests/>`_
+* `Adafruit CircuitPython SimpleIO <https://github.com/adafruit/Adafruit_CircuitPython_SimpleIO/>`_
 
 Please ensure all dependencies are available on the CircuitPython filesystem.
 This is easily achieved by downloading
