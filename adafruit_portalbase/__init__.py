@@ -474,7 +474,7 @@ class PortalBase:
                     string = func(values[value_index])
                 else:
                     try:
-                        string = "{:,d}".format(int(values[value_index]))
+                        string = f"{int(values[value_index]):,d}"
                     except (TypeError, ValueError):
                         string = values[value_index]  # ok it's a string
                 self._fetch_set_text(string, index=i)

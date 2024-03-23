@@ -668,9 +668,7 @@ class NetworkBase:
                 print("Couldn't parse json: ", response.text)
                 raise
             except MemoryError as error:
-                raise MemoryError(
-                    "{} (data is likely too large)".format(error)
-                ) from error
+                raise MemoryError(f"{error} (data is likely too large)") from error
 
         if content_type == CONTENT_JSON:
             values = self.process_json(json_out, json_path)
