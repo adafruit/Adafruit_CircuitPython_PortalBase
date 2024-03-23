@@ -21,12 +21,13 @@ Implementation Notes
 
 """
 
+import gc
 import os
 import time
-import gc
-from micropython import const
-from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
+
 from adafruit_fakerequests import Fake_Requests
+from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
+from micropython import const
 
 try:
     import rtc
