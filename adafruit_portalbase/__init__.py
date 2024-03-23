@@ -57,8 +57,7 @@ class PortalBase:
 
     """
 
-    # pylint: disable=too-many-instance-attributes, too-many-branches, too-many-public-methods
-    def __init__(
+    def __init__(  # noqa: PLR0912,PLR0913 Too many branches,Too many arguments in function definition
         self,
         network,
         graphics,
@@ -86,7 +85,7 @@ class PortalBase:
         self._text = []
 
         try:
-            import alarm  # pylint: disable=import-outside-toplevel
+            import alarm
 
             self._alarm = alarm
         except ImportError:
@@ -158,8 +157,7 @@ class PortalBase:
         """
         return wrap_text_to_lines(string, max_chars)
 
-    # pylint: disable=too-many-arguments
-    def add_text(
+    def add_text(  # noqa: PLR0913 Too many arguments in function definition
         self,
         text_position=(0, 0),
         text_font=terminalio.FONT,
@@ -237,8 +235,6 @@ class PortalBase:
 
         return text_index
 
-    # pylint: enable=too-many-arguments
-
     def remove_all_text(self, clear_font_cache=False):
         """Remove all added text and labels.
 
@@ -254,7 +250,7 @@ class PortalBase:
             self._fonts = {}
         gc.collect()
 
-    def set_text(self, val, index=0):
+    def set_text(self, val, index=0):  # noqa: PLR0912 Too many branches
         """Display text, with indexing into our list of text boxes.
 
         :param str val: The text to be displayed
@@ -311,13 +307,11 @@ class PortalBase:
         gc.collect()
 
     def preload_font(self, glyphs=None, index=0):
-        # pylint: disable=line-too-long
         """Preload font.
 
         :param glyphs: The font glyphs to load. Defaults to ``None``, uses alphanumeric glyphs if
                        None.
         """
-        # pylint: enable=line-too-long
         if not glyphs:
             glyphs = b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-!,. \"'?!"
         print("Preloading font glyphs:", glyphs)
@@ -471,7 +465,7 @@ class PortalBase:
         # fill out all the text blocks
         if self._text:
             value_index = 0  # In case values and text is not the same
-            for i in range(len(self._text)):  # pylint: disable=consider-using-enumerate
+            for i in range(len(self._text)):
                 if (not self._text[i]["is_data"]) or (value_index > (len(values) - 1)):
                     continue
                 string = None
