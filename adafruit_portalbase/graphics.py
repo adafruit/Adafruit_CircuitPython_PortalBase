@@ -100,9 +100,7 @@ class GraphicsBase:
         self._bg_group.append(self._bg_sprite)
         gc.collect()
 
-    def qrcode(
-        self, qr_data, *, qr_size=1, x=0, y=0, qr_color=0x000000
-    ):  # pylint: disable=invalid-name
+    def qrcode(self, qr_data, *, qr_size=1, x=0, y=0, qr_color=0x000000):  # pylint: disable=invalid-name
         """Display a QR code
 
         :param qr_data: The data for the QR code, None to remove.

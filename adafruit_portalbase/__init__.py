@@ -20,6 +20,7 @@ Implementation Notes
   https://github.com/adafruit/circuitpython/releases
 
 """
+
 import gc
 import time
 import terminalio
