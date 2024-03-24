@@ -9,7 +9,6 @@ See MatrixPortal, MagTag, and PyPortal libraries for more examples.
 # NOTE: Make sure you've created your secrets.py file before running this example
 # https://learn.adafruit.com/adafruit-pyportal/internet-connect#whats-a-secrets-file-17-2
 
-
 import board
 import displayio
 from adafruit_pyportal import PyPortal

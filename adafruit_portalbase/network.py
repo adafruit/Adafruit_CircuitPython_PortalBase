@@ -21,12 +21,13 @@ Implementation Notes
 
 """
 
+import gc
 import os
 import time
-import gc
-from micropython import const
-from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
+
 from adafruit_fakerequests import Fake_Requests
+from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
+from micropython import const
 
 try:
     import rtc
@@ -36,7 +37,6 @@ except ImportError:
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
 
-# pylint: disable=line-too-long, too-many-lines, too-many-public-methods
 # you'll need to pass in an io username and key
 TIME_SERVICE = (
     "https://io.adafruit.com/api/v2/%s/integrations/time/strftime?x-aio-key=%s"
@@ -45,7 +45,6 @@ TIME_SERVICE = (
 # See https://apidock.com/ruby/DateTime/strftime for full options
 TIME_SERVICE_FORMAT = "%Y-%m-%d %H:%M:%S.%L %j %u %z %Z"
 LOCALFILE = "local.txt"
-# pylint: enable=line-too-long
 
 STATUS_NO_CONNECTION = (100, 0, 0)  # Red
 STATUS_CONNECTING = (0, 0, 100)  # Blue
@@ -90,8 +89,7 @@ class NetworkBase:
 
     """
 
-    # pylint: disable=too-many-instance-attributes, too-many-locals, too-many-branches, too-many-statements
-    def __init__(
+    def __init__(  # noqa: PLR0912,PLR0913 Too many branches,Too many arguments in function definition
         self, wifi_module, *, extract_values=True, debug=False, secrets_data=None
     ):
         self._wifi = wifi_module
@@ -108,7 +106,7 @@ class NetworkBase:
         if secrets_data is not None:
             for key, value in secrets_data.items():
                 if key in OLD_SETTINGS:
-                    key = OLD_SETTINGS.get(key)
+                    key = OLD_SETTINGS.get(key)  # noqa: PLW2901 `for` loop variable `value` overwritten by assignment target
                 self._settings[key] = value
         self._wifi_credentials = None
 
@@ -134,7 +132,7 @@ class NetworkBase:
         if os.getenv(setting_name) is not None:
             return os.getenv(setting_name)
         try:
-            from secrets import secrets  # pylint: disable=import-outside-toplevel
+            from secrets import secrets
         except ImportError:
             secrets = {}
         if old_setting_name in secrets.keys():
@@ -210,7 +208,6 @@ class NetworkBase:
         :param str location: Your city and country, e.g. ``"America/New_York"``.
 
         """
-        # pylint: disable=line-too-long
         self.connect()
         api_url = None
         reply = None
@@ -219,7 +216,7 @@ class NetworkBase:
             aio_key = self._get_setting("AIO_KEY")
         except KeyError:
             raise KeyError(
-                "\n\nOur time service requires a login/password to rate-limit. Please register for a free adafruit.io account and place the user/key in your secrets file under 'AIO_USERNAME' and 'AIO_KEY'"  # pylint: disable=line-too-long
+                "\n\nOur time service requires a login/password to rate-limit. Please register for a free adafruit.io account and place the user/key in your secrets file under 'AIO_USERNAME' and 'AIO_KEY'"
             ) from KeyError
 
         if location is None:
@@ -250,7 +247,7 @@ class NetworkBase:
             reply = response.text
         except KeyError:
             raise KeyError(
-                "Was unable to lookup the time, try setting secrets['timezone'] according to http://worldtimeapi.org/timezones"  # pylint: disable=line-too-long
+                "Was unable to lookup the time, try setting secrets['timezone'] according to http://worldtimeapi.org/timezones"
             ) from KeyError
         # now clean up
         response.close()
@@ -260,7 +257,6 @@ class NetworkBase:
         return reply
 
     def get_local_time(self, location=None):
-        # pylint: disable=line-too-long
         """
         Fetch and "set" the local time of this microcontroller to the local time at the location, using an internet time API.
 
@@ -275,9 +271,9 @@ class NetworkBase:
             year_day = int(times[2])
             week_day = int(times[3])
             is_dst = None  # no way to know yet
-            year, month, mday = [int(x) for x in the_date.split("-")]
+            year, month, mday = (int(x) for x in the_date.split("-"))
             the_time = the_time.split(".")[0]
-            hours, minutes, seconds = [int(x) for x in the_time.split(":")]
+            hours, minutes, seconds = (int(x) for x in the_time.split(":"))
             now = time.struct_time(
                 (year, month, mday, hours, minutes, seconds, week_day, year_day, is_dst)
             )
@@ -623,7 +619,7 @@ class NetworkBase:
         gc.collect()
         return headers
 
-    def fetch_data(
+    def fetch_data(  # noqa: PLR0913 Too many arguments in function definition
         self,
         url,
         *,
@@ -672,9 +668,7 @@ class NetworkBase:
                 print("Couldn't parse json: ", response.text)
                 raise
             except MemoryError as error:
-                raise MemoryError(
-                    "{} (data is likely too large)".format(error)
-                ) from error
+                raise MemoryError(f"{error} (data is likely too large)") from error
 
         if content_type == CONTENT_JSON:
             values = self.process_json(json_out, json_path)
@@ -703,7 +697,7 @@ class NetworkBase:
         """
         values = []
         if regexp_path:
-            import re  # pylint: disable=import-outside-toplevel
+            import re
 
             for regexp in regexp_path:
                 values.append(re.search(regexp, text).group(1))
@@ -740,7 +734,7 @@ class NetworkBase:
                     raise
         else:
             # No path given, so return JSON as string for compatibility
-            import json  # pylint: disable=import-outside-toplevel
+            import json
 
             values = json.dumps(json_data)
         return values
