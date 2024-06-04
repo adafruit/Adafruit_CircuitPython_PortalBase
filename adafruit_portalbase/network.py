@@ -213,7 +213,7 @@ class NetworkBase:
 
         """
         # pylint: disable=line-too-long
-        self.connect()
+        self.connect(max_attempts=max_attempts)
         api_url = None
         reply = None
         try:
@@ -271,7 +271,7 @@ class NetworkBase:
                              failing or use None to disable. Defaults to 10.
 
         """
-        reply = self.get_strftime(TIME_SERVICE_FORMAT, location=location)
+        reply = self.get_strftime(TIME_SERVICE_FORMAT, location=location, max_attempts=max_attempts)
         if reply:
             times = reply.split(" ")
             the_date = times[0]
