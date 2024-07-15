@@ -271,7 +271,9 @@ class NetworkBase:
                              failing or use None to disable. Defaults to 10.
 
         """
-        reply = self.get_strftime(TIME_SERVICE_FORMAT, location=location, max_attempts=max_attempts)
+        reply = self.get_strftime(
+            TIME_SERVICE_FORMAT, location=location, max_attempts=max_attempts
+        )
         if reply:
             times = reply.split(" ")
             the_date = times[0]
@@ -635,7 +637,7 @@ class NetworkBase:
         json_path=None,
         regexp_path=None,
         timeout=10,
-    ):
+    ):  # pylint: disable=too-many-arguments
         """Fetch data from the specified url and perfom any parsing
 
         :param str url: The URL to fetch from.

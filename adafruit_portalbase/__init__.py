@@ -55,7 +55,7 @@ class PortalBase:
 
     """
 
-    # pylint: disable=too-many-instance-attributes, too-many-branches, too-many-public-methods
+    # pylint: disable=too-many-instance-attributes, too-many-branches, too-many-public-methods, too-many-arguments
     def __init__(
         self,
         network,
