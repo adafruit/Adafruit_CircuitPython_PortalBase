@@ -484,12 +484,12 @@ class PortalBase:
                 self._fetch_set_text(string, index=i)
                 value_index += 1
 
-    def get_local_time(self, location=None):
+    def get_local_time(self, location=None, max_attempts=10):
         """Accessor function for get_local_time()"""
         if self.network is None:
             raise RuntimeError("network must not be None to use get_local_time()")
 
-        return self.network.get_local_time(location=location)
+        return self.network.get_local_time(location=location, max_attempts=max_attempts)
 
     def push_to_io(self, feed_key, data, metadata=None, precision=None):
         """Push data to an adafruit.io feed
