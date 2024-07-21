@@ -102,7 +102,7 @@ class GraphicsBase:
 
     def qrcode(
         self, qr_data, *, qr_size=1, x=0, y=0, qr_color=0x000000
-    ):  # pylint: disable=invalid-name
+    ):  # pylint: disable=invalid-name, too-many-arguments
         """Display a QR code
 
         :param qr_data: The data for the QR code, None to remove.
