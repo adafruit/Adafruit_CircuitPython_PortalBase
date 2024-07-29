@@ -355,9 +355,7 @@ class PortalBase:
 
         """
         if self._alarm:
-            return self._alarm.time.TimeAlarm(
-                monotonic_time=time.monotonic() + sleep_time
-            )
+            return self._alarm.time.TimeAlarm(monotonic_time=time.monotonic() + sleep_time)
         raise NotImplementedError(
             "Alarms not supported. Make sure you have the latest CircuitPython."
         )

@@ -62,9 +62,7 @@ class WiFi:
         """
         wifi.radio.connect(ssid, password)
         self.pool = socketpool.SocketPool(wifi.radio)
-        self.requests = adafruit_requests.Session(
-            self.pool, ssl.create_default_context()
-        )
+        self.requests = adafruit_requests.Session(self.pool, ssl.create_default_context())
         self._connected = True
 
     def neo_status(self, value):

@@ -136,9 +136,7 @@ class GraphicsBase:
         palette[1] = qr_color
 
         # bitmap the size of the matrix, plus border, monochrome (2 colors)
-        qr_bitmap = displayio.Bitmap(
-            qrcode.matrix.width + 2, qrcode.matrix.height + 2, 2
-        )
+        qr_bitmap = displayio.Bitmap(qrcode.matrix.width + 2, qrcode.matrix.height + 2, 2)
         for i in range(qr_bitmap.width * qr_bitmap.height):
             qr_bitmap[i] = 0
 

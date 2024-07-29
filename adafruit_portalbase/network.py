@@ -38,9 +38,7 @@ __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
 
 # you'll need to pass in an io username and key
-TIME_SERVICE = (
-    "https://io.adafruit.com/api/v2/%s/integrations/time/strftime?x-aio-key=%s"
-)
+TIME_SERVICE = "https://io.adafruit.com/api/v2/%s/integrations/time/strftime?x-aio-key=%s"
 # our strftime is %Y-%m-%d %H:%M:%S.%L %j %u %z %Z see http://strftime.net/ for decoding details
 # See https://apidock.com/ruby/DateTime/strftime for full options
 TIME_SERVICE_FORMAT = "%Y-%m-%d %H:%M:%S.%L %j %u %z %Z"
@@ -146,9 +144,7 @@ class NetworkBase:
         at a minimum in order to use network related features"""
                 )
             else:
-                print(
-                    f"{setting_name} not found. Please add this setting to settings.toml."
-                )
+                print(f"{setting_name} not found. Please add this setting to settings.toml.")
         return None
 
     def neo_status(self, value):
@@ -170,16 +166,12 @@ class NetworkBase:
         """
         value = json
         if not isinstance(path, (list, tuple)):
-            raise ValueError(
-                "The json_path parameter should be enclosed in a list or tuple."
-            )
+            raise ValueError("The json_path parameter should be enclosed in a list or tuple.")
         for x in path:
             try:
                 value = value[x]
             except (TypeError, KeyError, IndexError) as error:
-                raise ValueError(
-                    "The specified json_path was not found in the results."
-                ) from error
+                raise ValueError("The specified json_path was not found in the results.") from error
             gc.collect()
         return value
 
@@ -206,7 +198,7 @@ class NetworkBase:
         Fetch a custom strftime relative to your location.
 
         :param str location: Your city and country, e.g. ``"America/New_York"``.
-        :param max_attempts: The maximum number of of attempts to connect to WiFi before
+        :param max_attempts: The maximum number of attempts to connect to WiFi before
                              failing or use None to disable. Defaults to 10.
 
         """
@@ -218,7 +210,9 @@ class NetworkBase:
             aio_key = self._get_setting("AIO_KEY")
         except KeyError:
             raise KeyError(
-                "\n\nOur time service requires a login/password to rate-limit. Please register for a free adafruit.io account and place the user/key in your secrets file under 'AIO_USERNAME' and 'AIO_KEY'"
+                "\n\nOur time service requires a login/password to rate-limit. "
+                "Please register for a free adafruit.io account and place the user/key "
+                "in your secrets file under 'AIO_USERNAME' and 'AIO_KEY'"
             ) from KeyError
 
         if location is None:
@@ -238,8 +232,7 @@ class NetworkBase:
             if response.status_code != 200:
                 print(response)
                 error_message = (
-                    "Error connecting to Adafruit IO. The response was: "
-                    + response.text
+                    "Error connecting to Adafruit IO. The response was: " + response.text
                 )
                 self.neo_status(STATUS_HTTP_ERROR)
                 raise RuntimeError(error_message)
@@ -260,16 +253,15 @@ class NetworkBase:
 
     def get_local_time(self, location=None, max_attempts=10):
         """
-        Fetch and "set" the local time of this microcontroller to the local time at the location, using an internet time API.
+        Fetch and "set" the local time of this microcontroller to the local time at the location,
+        using an internet time API.
 
         :param str location: Your city and country, e.g. ``"America/New_York"``.
-        :param max_attempts: The maximum number of of attempts to connect to WiFi before
+        :param max_attempts: The maximum number of attempts to connect to WiFi before
                              failing or use None to disable. Defaults to 10.
 
         """
-        reply = self.get_strftime(
-            TIME_SERVICE_FORMAT, location=location, max_attempts=max_attempts
-        )
+        reply = self.get_strftime(TIME_SERVICE_FORMAT, location=location, max_attempts=max_attempts)
         if reply:
             times = reply.split(" ")
             the_date = times[0]
@@ -319,9 +311,7 @@ class NetworkBase:
                     print("Date: {}".format(headers["date"]))
             self.neo_status(STATUS_HTTP_ERROR)  # red = http error
             raise HttpError(
-                "Code {}: {}".format(
-                    response.status_code, response.reason.decode("utf-8")
-                ),
+                "Code {}: {}".format(response.status_code, response.reason.decode("utf-8")),
                 response,
             )
 
@@ -340,10 +330,7 @@ class NetworkBase:
                 remaining -= len(i)
                 file.write(i)
                 if self._debug:
-                    print(
-                        "Read %d bytes, %d remaining"
-                        % (content_length - remaining, remaining)
-                    )
+                    print("Read %d bytes, %d remaining" % (content_length - remaining, remaining))
                 else:
                     print(".", end="")
                 if not remaining:
@@ -352,9 +339,7 @@ class NetworkBase:
 
         response.close()
         stamp = time.monotonic() - stamp
-        print(
-            "Created file of %d bytes in %0.1f seconds" % (os.stat(filename)[6], stamp)
-        )
+        print("Created file of %d bytes in %0.1f seconds" % (os.stat(filename)[6], stamp))
         self.neo_status(STATUS_OFF)
         if not content_length == os.stat(filename)[6]:
             raise RuntimeError
@@ -363,7 +348,7 @@ class NetworkBase:
         """
         Connect to WiFi using the settings found in secrets.py
 
-        :param max_attempts: The maximum number of of attempts to connect to WiFi before
+        :param max_attempts: The maximum number of attempts to connect to WiFi before
                              failing or use None to disable. Defaults to 10.
 
         """
@@ -392,19 +377,12 @@ class NetworkBase:
             while not self._wifi.is_connected:
                 # secrets dictionary must contain 'ssid' and 'password' at a minimum
                 print("Connecting to AP", secret_entry["ssid"])
-                if (
-                    secret_entry["ssid"] == "CHANGE ME"
-                    or secret_entry["password"] == "CHANGE ME"
-                ):
+                if secret_entry["ssid"] == "CHANGE ME" or secret_entry["password"] == "CHANGE ME":
                     change_me = "\n" + "*" * 45
                     change_me += "\nPlease update the 'settings.toml' file on your\n"
                     change_me += "CIRCUITPY drive to include your local WiFi\n"
-                    change_me += (
-                        "access point SSID name in 'CIRCUITPY_WIFI_SSID' and SSID\n"
-                    )
-                    change_me += (
-                        "password in 'CIRCUITPY_WIFI_PASSWORD'. Then save to reload!\n"
-                    )
+                    change_me += "access point SSID name in 'CIRCUITPY_WIFI_SSID' and SSID\n"
+                    change_me += "password in 'CIRCUITPY_WIFI_PASSWORD'. Then save to reload!\n"
                     change_me += "*" * 45
                     raise OSError(change_me)
                 self._wifi.neo_status(STATUS_NO_CONNECTION)  # red = not connected
@@ -425,9 +403,7 @@ class NetworkBase:
             if self._wifi.is_connected:
                 return
 
-        raise OSError(
-            "Maximum number of attempts reached when trying to connect to WiFi"
-        )
+        raise OSError("Maximum number of attempts reached when trying to connect to WiFi")
 
     def _get_io_client(self):
         if self._io_client is not None:
@@ -609,9 +585,7 @@ class NetworkBase:
                     print("Date: {}".format(headers["date"]))
             self.neo_status((100, 0, 0))  # red = http error
             raise HttpError(
-                "Code {}: {}".format(
-                    response.status_code, response.reason.decode("utf-8")
-                ),
+                "Code {}: {}".format(response.status_code, response.reason.decode("utf-8")),
                 response,
             )
 
