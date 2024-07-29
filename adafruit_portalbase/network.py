@@ -21,12 +21,13 @@ Implementation Notes
 
 """
 
+import gc
 import os
 import time
-import gc
-from micropython import const
-from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
+
 from adafruit_fakerequests import Fake_Requests
+from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
+from micropython import const
 
 try:
     import rtc
@@ -36,16 +37,12 @@ except ImportError:
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
 
-# pylint: disable=line-too-long, too-many-lines, too-many-public-methods
 # you'll need to pass in an io username and key
-TIME_SERVICE = (
-    "https://io.adafruit.com/api/v2/%s/integrations/time/strftime?x-aio-key=%s"
-)
+TIME_SERVICE = "https://io.adafruit.com/api/v2/%s/integrations/time/strftime?x-aio-key=%s"
 # our strftime is %Y-%m-%d %H:%M:%S.%L %j %u %z %Z see http://strftime.net/ for decoding details
 # See https://apidock.com/ruby/DateTime/strftime for full options
 TIME_SERVICE_FORMAT = "%Y-%m-%d %H:%M:%S.%L %j %u %z %Z"
 LOCALFILE = "local.txt"
-# pylint: enable=line-too-long
 
 STATUS_NO_CONNECTION = (100, 0, 0)  # Red
 STATUS_CONNECTING = (0, 0, 100)  # Blue
@@ -90,8 +87,7 @@ class NetworkBase:
 
     """
 
-    # pylint: disable=too-many-instance-attributes, too-many-locals, too-many-branches, too-many-statements
-    def __init__(
+    def __init__(  # noqa: PLR0912,PLR0913 Too many branches,Too many arguments in function definition
         self, wifi_module, *, extract_values=True, debug=False, secrets_data=None
     ):
         self._wifi = wifi_module
@@ -108,7 +104,7 @@ class NetworkBase:
         if secrets_data is not None:
             for key, value in secrets_data.items():
                 if key in OLD_SETTINGS:
-                    key = OLD_SETTINGS.get(key)
+                    key = OLD_SETTINGS.get(key)  # noqa: PLW2901 `for` loop variable `value` overwritten by assignment target
                 self._settings[key] = value
         self._wifi_credentials = None
 
@@ -134,7 +130,7 @@ class NetworkBase:
         if os.getenv(setting_name) is not None:
             return os.getenv(setting_name)
         try:
-            from secrets import secrets  # pylint: disable=import-outside-toplevel
+            from secrets import secrets
         except ImportError:
             secrets = {}
         if old_setting_name in secrets.keys():
@@ -148,9 +144,7 @@ class NetworkBase:
         at a minimum in order to use network related features"""
                 )
             else:
-                print(
-                    f"{setting_name} not found. Please add this setting to settings.toml."
-                )
+                print(f"{setting_name} not found. Please add this setting to settings.toml.")
         return None
 
     def neo_status(self, value):
@@ -172,16 +166,12 @@ class NetworkBase:
         """
         value = json
         if not isinstance(path, (list, tuple)):
-            raise ValueError(
-                "The json_path parameter should be enclosed in a list or tuple."
-            )
+            raise ValueError("The json_path parameter should be enclosed in a list or tuple.")
         for x in path:
             try:
                 value = value[x]
             except (TypeError, KeyError, IndexError) as error:
-                raise ValueError(
-                    "The specified json_path was not found in the results."
-                ) from error
+                raise ValueError("The specified json_path was not found in the results.") from error
             gc.collect()
         return value
 
@@ -208,11 +198,10 @@ class NetworkBase:
         Fetch a custom strftime relative to your location.
 
         :param str location: Your city and country, e.g. ``"America/New_York"``.
-        :param max_attempts: The maximum number of of attempts to connect to WiFi before
+        :param max_attempts: The maximum number of attempts to connect to WiFi before
                              failing or use None to disable. Defaults to 10.
 
         """
-        # pylint: disable=line-too-long
         self.connect(max_attempts=max_attempts)
         api_url = None
         reply = None
@@ -221,7 +210,9 @@ class NetworkBase:
             aio_key = self._get_setting("AIO_KEY")
         except KeyError:
             raise KeyError(
-                "\n\nOur time service requires a login/password to rate-limit. Please register for a free adafruit.io account and place the user/key in your secrets file under 'AIO_USERNAME' and 'AIO_KEY'"  # pylint: disable=line-too-long
+                "\n\nOur time service requires a login/password to rate-limit. "
+                "Please register for a free adafruit.io account and place the user/key "
+                "in your secrets file under 'AIO_USERNAME' and 'AIO_KEY'"
             ) from KeyError
 
         if location is None:
@@ -241,8 +232,7 @@ class NetworkBase:
             if response.status_code != 200:
                 print(response)
                 error_message = (
-                    "Error connecting to Adafruit IO. The response was: "
-                    + response.text
+                    "Error connecting to Adafruit IO. The response was: " + response.text
                 )
                 self.neo_status(STATUS_HTTP_ERROR)
                 raise RuntimeError(error_message)
@@ -252,7 +242,7 @@ class NetworkBase:
             reply = response.text
         except KeyError:
             raise KeyError(
-                "Was unable to lookup the time, try setting secrets['timezone'] according to http://worldtimeapi.org/timezones"  # pylint: disable=line-too-long
+                "Was unable to lookup the time, try setting secrets['timezone'] according to http://worldtimeapi.org/timezones"
             ) from KeyError
         # now clean up
         response.close()
@@ -262,18 +252,16 @@ class NetworkBase:
         return reply
 
     def get_local_time(self, location=None, max_attempts=10):
-        # pylint: disable=line-too-long
         """
-        Fetch and "set" the local time of this microcontroller to the local time at the location, using an internet time API.
+        Fetch and "set" the local time of this microcontroller to the local time at the location,
+        using an internet time API.
 
         :param str location: Your city and country, e.g. ``"America/New_York"``.
-        :param max_attempts: The maximum number of of attempts to connect to WiFi before
+        :param max_attempts: The maximum number of attempts to connect to WiFi before
                              failing or use None to disable. Defaults to 10.
 
         """
-        reply = self.get_strftime(
-            TIME_SERVICE_FORMAT, location=location, max_attempts=max_attempts
-        )
+        reply = self.get_strftime(TIME_SERVICE_FORMAT, location=location, max_attempts=max_attempts)
         if reply:
             times = reply.split(" ")
             the_date = times[0]
@@ -281,9 +269,9 @@ class NetworkBase:
             year_day = int(times[2])
             week_day = int(times[3])
             is_dst = None  # no way to know yet
-            year, month, mday = [int(x) for x in the_date.split("-")]
+            year, month, mday = (int(x) for x in the_date.split("-"))
             the_time = the_time.split(".")[0]
-            hours, minutes, seconds = [int(x) for x in the_time.split(":")]
+            hours, minutes, seconds = (int(x) for x in the_time.split(":"))
             now = time.struct_time(
                 (year, month, mday, hours, minutes, seconds, week_day, year_day, is_dst)
             )
@@ -323,9 +311,7 @@ class NetworkBase:
                     print("Date: {}".format(headers["date"]))
             self.neo_status(STATUS_HTTP_ERROR)  # red = http error
             raise HttpError(
-                "Code {}: {}".format(
-                    response.status_code, response.reason.decode("utf-8")
-                ),
+                "Code {}: {}".format(response.status_code, response.reason.decode("utf-8")),
                 response,
             )
 
@@ -344,10 +330,7 @@ class NetworkBase:
                 remaining -= len(i)
                 file.write(i)
                 if self._debug:
-                    print(
-                        "Read %d bytes, %d remaining"
-                        % (content_length - remaining, remaining)
-                    )
+                    print("Read %d bytes, %d remaining" % (content_length - remaining, remaining))
                 else:
                     print(".", end="")
                 if not remaining:
@@ -356,9 +339,7 @@ class NetworkBase:
 
         response.close()
         stamp = time.monotonic() - stamp
-        print(
-            "Created file of %d bytes in %0.1f seconds" % (os.stat(filename)[6], stamp)
-        )
+        print("Created file of %d bytes in %0.1f seconds" % (os.stat(filename)[6], stamp))
         self.neo_status(STATUS_OFF)
         if not content_length == os.stat(filename)[6]:
             raise RuntimeError
@@ -367,7 +348,7 @@ class NetworkBase:
         """
         Connect to WiFi using the settings found in secrets.py
 
-        :param max_attempts: The maximum number of of attempts to connect to WiFi before
+        :param max_attempts: The maximum number of attempts to connect to WiFi before
                              failing or use None to disable. Defaults to 10.
 
         """
@@ -396,19 +377,12 @@ class NetworkBase:
             while not self._wifi.is_connected:
                 # secrets dictionary must contain 'ssid' and 'password' at a minimum
                 print("Connecting to AP", secret_entry["ssid"])
-                if (
-                    secret_entry["ssid"] == "CHANGE ME"
-                    or secret_entry["password"] == "CHANGE ME"
-                ):
+                if secret_entry["ssid"] == "CHANGE ME" or secret_entry["password"] == "CHANGE ME":
                     change_me = "\n" + "*" * 45
                     change_me += "\nPlease update the 'settings.toml' file on your\n"
                     change_me += "CIRCUITPY drive to include your local WiFi\n"
-                    change_me += (
-                        "access point SSID name in 'CIRCUITPY_WIFI_SSID' and SSID\n"
-                    )
-                    change_me += (
-                        "password in 'CIRCUITPY_WIFI_PASSWORD'. Then save to reload!\n"
-                    )
+                    change_me += "access point SSID name in 'CIRCUITPY_WIFI_SSID' and SSID\n"
+                    change_me += "password in 'CIRCUITPY_WIFI_PASSWORD'. Then save to reload!\n"
                     change_me += "*" * 45
                     raise OSError(change_me)
                 self._wifi.neo_status(STATUS_NO_CONNECTION)  # red = not connected
@@ -429,9 +403,7 @@ class NetworkBase:
             if self._wifi.is_connected:
                 return
 
-        raise OSError(
-            "Maximum number of attempts reached when trying to connect to WiFi"
-        )
+        raise OSError("Maximum number of attempts reached when trying to connect to WiFi")
 
     def _get_io_client(self):
         if self._io_client is not None:
@@ -613,9 +585,7 @@ class NetworkBase:
                     print("Date: {}".format(headers["date"]))
             self.neo_status((100, 0, 0))  # red = http error
             raise HttpError(
-                "Code {}: {}".format(
-                    response.status_code, response.reason.decode("utf-8")
-                ),
+                "Code {}: {}".format(response.status_code, response.reason.decode("utf-8")),
                 response,
             )
 
@@ -629,7 +599,7 @@ class NetworkBase:
         gc.collect()
         return headers
 
-    def fetch_data(
+    def fetch_data(  # noqa: PLR0913 Too many arguments in function definition
         self,
         url,
         *,
@@ -637,7 +607,7 @@ class NetworkBase:
         json_path=None,
         regexp_path=None,
         timeout=10,
-    ):  # pylint: disable=too-many-arguments
+    ):
         """Fetch data from the specified url and perfom any parsing
 
         :param str url: The URL to fetch from.
@@ -678,9 +648,7 @@ class NetworkBase:
                 print("Couldn't parse json: ", response.text)
                 raise
             except MemoryError as error:
-                raise MemoryError(
-                    "{} (data is likely too large)".format(error)
-                ) from error
+                raise MemoryError(f"{error} (data is likely too large)") from error
 
         if content_type == CONTENT_JSON:
             values = self.process_json(json_out, json_path)
@@ -709,7 +677,7 @@ class NetworkBase:
         """
         values = []
         if regexp_path:
-            import re  # pylint: disable=import-outside-toplevel
+            import re
 
             for regexp in regexp_path:
                 values.append(re.search(regexp, text).group(1))
@@ -746,7 +714,7 @@ class NetworkBase:
                     raise
         else:
             # No path given, so return JSON as string for compatibility
-            import json  # pylint: disable=import-outside-toplevel
+            import json
 
             values = json.dumps(json_data)
         return values

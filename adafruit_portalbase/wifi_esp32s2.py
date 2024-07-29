@@ -23,9 +23,10 @@ Implementation Notes
 
 import gc
 import ssl
-import wifi
-import socketpool
+
 import adafruit_requests
+import socketpool
+import wifi
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
@@ -61,9 +62,7 @@ class WiFi:
         """
         wifi.radio.connect(ssid, password)
         self.pool = socketpool.SocketPool(wifi.radio)
-        self.requests = adafruit_requests.Session(
-            self.pool, ssl.create_default_context()
-        )
+        self.requests = adafruit_requests.Session(self.pool, ssl.create_default_context())
         self._connected = True
 
     def neo_status(self, value):

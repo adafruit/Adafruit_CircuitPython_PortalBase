@@ -22,6 +22,7 @@ Implementation Notes
 """
 
 import gc
+
 import displayio
 
 __version__ = "0.0.0+auto.0"
@@ -40,8 +41,7 @@ class GraphicsBase:
 
     """
 
-    # pylint: disable=too-many-instance-attributes, too-many-locals, too-many-branches, too-many-statements
-    def __init__(self, display, *, default_bg=0x000000, scale=1, debug=False):
+    def __init__(self, display, *, default_bg=0x000000, scale=1, debug=False):  # noqa: PLR0912,PLR0913 Too many branches,Too many arguments in function definition
         self._debug = debug
         self.display = display
 
@@ -100,9 +100,7 @@ class GraphicsBase:
         self._bg_group.append(self._bg_sprite)
         gc.collect()
 
-    def qrcode(
-        self, qr_data, *, qr_size=1, x=0, y=0, qr_color=0x000000
-    ):  # pylint: disable=invalid-name, too-many-arguments
+    def qrcode(self, qr_data, *, qr_size=1, x=0, y=0, qr_color=0x000000):  # noqa: PLR0912,PLR0913 Too many branches,Too many arguments in function definition
         """Display a QR code
 
         :param qr_data: The data for the QR code, None to remove.
@@ -118,7 +116,7 @@ class GraphicsBase:
             gc.collect()
             return
 
-        import adafruit_miniqr  # pylint: disable=import-outside-toplevel
+        import adafruit_miniqr
 
         # generate the QR code
         for qrtype in range(1, 6):
@@ -137,11 +135,8 @@ class GraphicsBase:
         palette[0] = 0xFFFFFF
         palette[1] = qr_color
 
-        # pylint: disable=invalid-name
         # bitmap the size of the matrix, plus border, monochrome (2 colors)
-        qr_bitmap = displayio.Bitmap(
-            qrcode.matrix.width + 2, qrcode.matrix.height + 2, 2
-        )
+        qr_bitmap = displayio.Bitmap(qrcode.matrix.width + 2, qrcode.matrix.height + 2, 2)
         for i in range(qr_bitmap.width * qr_bitmap.height):
             qr_bitmap[i] = 0
 
