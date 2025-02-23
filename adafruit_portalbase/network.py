@@ -154,7 +154,8 @@ class NetworkBase:
         env_value = secrets.get(secrets_setting_name)
         if env_value is not None:
             warnings.warn(
-                "Using secrets.py for network settings is deprecated. Put your settings in settings.toml."
+                "Using secrets.py for network settings is deprecated."
+                " Put your settings in settings.toml."
             )
             self._settings[setting_name] = env_value
             return env_value
