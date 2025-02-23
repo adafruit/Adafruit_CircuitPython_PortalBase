@@ -154,8 +154,7 @@ class NetworkBase:
         env_value = secrets.get(secrets_setting_name)
         if env_value is not None:
             warnings.warn(
-                "The using of `secrets`, is deprecated. Please put your settings in "
-                "settings.toml"
+                "Using secrets.py for network settings is deprecated. Put your settings in settings.toml."
             )
             self._settings[setting_name] = env_value
             return env_value
@@ -225,8 +224,8 @@ class NetworkBase:
             aio_key = self._get_setting("ADAFRUIT_AIO_KEY")
         except KeyError:
             raise KeyError(
-                "\n\nOur time service requires a login/password to rate-limit. "
-                "Please register for a free adafruit.io account and place the user/key in "
+                "\nThe Adafruit IO time service requires a login and password. "
+                "Rgister for a free adafruit.io account and put the username and key in "
                 "your settings.toml file under 'ADAFRUIT_AIO_USERNAME' and 'ADAFRUIT_AIO_KEY'"
             ) from KeyError
 
@@ -257,7 +256,7 @@ class NetworkBase:
             reply = response.text
         except KeyError:
             raise KeyError(
-                "Was unable to lookup the time, try setting 'timezone' in your settings.toml"
+                "Unable to lookup the time, try setting 'timezone' in your settings.toml"
                 "according to http://worldtimeapi.org/timezones"
             ) from KeyError
         # now clean up
