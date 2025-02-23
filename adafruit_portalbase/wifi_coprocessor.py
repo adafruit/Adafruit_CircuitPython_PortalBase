@@ -70,7 +70,6 @@ class WiFi:
 
         if self.esp.is_connected:
             self._set_requests()
-        self._manager = None
 
         gc.collect()
 
@@ -81,9 +80,9 @@ class WiFi:
 
     def connect(self, ssid, password):
         """
-        Connect to WiFi using the settings found in secrets.py
+        Connect to WiFi using the settings found in settings.toml
         """
-        self.esp.connect({"ssid": ssid, "password": password})
+        self.esp.connect(ssid, password)
         self._set_requests()
 
     def neo_status(self, value):
@@ -94,14 +93,6 @@ class WiFi:
         """
         if self.neopix:
             self.neopix.fill(value)
-
-    def manager(self, secrets):
-        """Initialize the WiFi Manager if it hasn't been cached and return it"""
-        if self._manager is None:
-            self._manager = adafruit_esp32spi_wifimanager.ESPSPI_WiFiManager(
-                self.esp, secrets, None
-            )
-        return self._manager
 
     @property
     def is_connected(self):

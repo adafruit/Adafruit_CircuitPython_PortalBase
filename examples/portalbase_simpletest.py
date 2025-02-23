@@ -6,12 +6,12 @@ NOTE: This PortalBase library is intended to be subclassed by other libraries ra
 used directly by end users. This example shows one such usage with the PyPortal library.
 See MatrixPortal, MagTag, and PyPortal libraries for more examples.
 """
-# NOTE: Make sure you've created your secrets.py file before running this example
-# https://learn.adafruit.com/adafruit-pyportal/internet-connect#whats-a-secrets-file-17-2
+# NOTE: Make sure you've created your settings.toml file before running this example
+# https://learn.adafruit.com/adafruit-pyportal/create-your-settings-toml-file
 
 import board
-import displayio
 from adafruit_pyportal import PyPortal
+from displayio import CIRCUITPYTHON_TERMINAL
 
 # Set a data source URL
 TEXT_URL = "http://wifitest.adafruit.com/testwifi/index.html"
@@ -20,7 +20,7 @@ TEXT_URL = "http://wifitest.adafruit.com/testwifi/index.html"
 pyportal = PyPortal(url=TEXT_URL, status_neopixel=board.NEOPIXEL)
 
 # Set display to show REPL
-board.DISPLAY.root_group = displayio.CIRCUITPYTHON_TERMINAL
+board.DISPLAY.root_group = CIRCUITPYTHON_TERMINAL
 
 # Go get that data
 print("Fetching text from", TEXT_URL)
