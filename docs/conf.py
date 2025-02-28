@@ -29,7 +29,6 @@ autodoc_mock_imports = [
     "bitmaptools",
     "rtc",
     "ssl",
-    "secrets",
     "wifi",
     "socketpool",
     "terminalio",
