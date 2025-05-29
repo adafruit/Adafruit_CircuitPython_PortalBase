@@ -78,7 +78,7 @@ class PortalBase:
         """The :py:meth:`displayio.Group()` object that acts as the splash screen
         for this device."""
         self.display = self.graphics.display
-        """The :py:meth:`displayio.Display` object representing the screen for this device"""
+        """The :py:class:`busdisplay.BusDisplay` object representing the screen for this device"""
 
         # Font Cache
         self._fonts = {}
