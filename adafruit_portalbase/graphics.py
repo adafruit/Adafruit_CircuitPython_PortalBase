@@ -168,4 +168,8 @@ class GraphicsBase:
     @property
     def splash(self):
         """The display's root group (for backwards compatibility)."""
+        print(
+            "WARNING: splash is deprecated, use root_group instead. "
+            "This will be removed in a future release."
+        )
         return self.display._root_group

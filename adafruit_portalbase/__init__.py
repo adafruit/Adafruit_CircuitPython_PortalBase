@@ -557,6 +557,10 @@ class PortalBase:
     @property
     def splash(self):
         """The root display group for this device (for backwards compatibility)."""
+        print(
+            "WARNING: splash is deprecated, use root_group instead. "
+            "This will be removed in a future release."
+        )
         return self.graphics.root_group
 
     @property
