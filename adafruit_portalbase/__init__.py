@@ -73,12 +73,8 @@ class PortalBase:
         self.network = network
         """The :py:class:`~adafruit_portalbase.NetworkBase`-derived instance provided"""
         self.graphics = graphics
-        """The :py:class:`~adafruit_portalbase.GraphicsBase`-derived instance provided"""
-        self.splash = self.graphics.splash
-        """The :py:meth:`displayio.Group()` object that acts as the splash screen
+        """The :py:meth:`displayio.Group()` object that acts as the root group screen
         for this device."""
-        self.display = self.graphics.display
-        """The :py:class:`busdisplay.BusDisplay` object representing the screen for this device"""
 
         # Font Cache
         self._fonts = {}
@@ -267,7 +263,7 @@ class PortalBase:
                 string = string[: self._text[index]["maxlen"] - 3] + "..."
             else:
                 string = string[: self._text[index]["maxlen"]]
-        index_in_splash = None
+        index_in_root_group = None
 
         if len(string) > 0 and self._text[index]["wrap"]:
             if self._debug:
@@ -278,7 +274,7 @@ class PortalBase:
         if self._text[index]["label"] is not None:
             if self._debug:
                 print("Replacing text area with :", string)
-            index_in_splash = self.splash.index(self._text[index]["label"])
+            index_in_root_group = self.root_group.index(self._text[index]["label"])
         elif self._debug:
             print("Creating text area with :", string)
         if len(string) > 0:
@@ -288,22 +284,22 @@ class PortalBase:
                     text=string,
                     scale=self._text[index]["scale"],
                 )
-                if index_in_splash is not None:
-                    self.splash[index_in_splash] = self._text[index]["label"]
+                if index_in_root_group is not None:
+                    self.root_group[index_in_root_group] = self._text[index]["label"]
                 else:
-                    self.splash.append(self._text[index]["label"])
+                    self.root_group.append(self._text[index]["label"])
             else:
                 self._text[index]["label"].text = string
             self._text[index]["label"].color = self._text[index]["color"]
             self._text[index]["label"].anchor_point = self._text[index]["anchor_point"]
             self._text[index]["label"].anchored_position = self._text[index]["position"]
             self._text[index]["label"].line_spacing = self._text[index]["line_spacing"]
-        elif index_in_splash is not None:
+        elif index_in_root_group is not None:
             self._text[index]["label"] = None
 
-        # Remove the label from splash
-        if index_in_splash is not None and self._text[index]["label"] is None:
-            del self.splash[index_in_splash]
+        # Remove the label from root group
+        if index_in_root_group is not None and self._text[index]["label"] is None:
+            del self.root_group[index_in_root_group]
         gc.collect()
 
     def preload_font(self, glyphs=None, index=0):
@@ -552,3 +548,18 @@ class PortalBase:
                 self._json_path = (value,)
         else:
             self._json_path = None
+
+    @property
+    def root_group(self):
+        """The root display group for this device."""
+        return self.graphics.root_group
+
+    @property
+    def splash(self):
+        """The root display group for this device (for backwards compatibility)."""
+        return self.graphics.root_group
+
+    @property
+    def display(self):
+        """The displayio.Display object for this device."""
+        return self.graphics.display
