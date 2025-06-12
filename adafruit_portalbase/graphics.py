@@ -47,16 +47,16 @@ class GraphicsBase:
 
         if self._debug:
             print("Init display")
-        self.splash = displayio.Group(scale=scale)
+        self._root_group = displayio.Group(scale=scale)
         self._qr_group = None
         if self._debug:
             print("Init background")
         self._bg_group = displayio.Group()
-        self.splash.append(self._bg_group)
+        self._root_group.append(self._bg_group)
 
         # set the default background
         if default_bg is not None:
-            self.display.root_group = self.splash
+            self.display.root_group = self._root_group
             self.set_background(default_bg)
 
         gc.collect()
@@ -110,8 +110,8 @@ class GraphicsBase:
 
         """
         if qr_data is None:
-            if self._qr_group and self._qr_group in self.splash:
-                self.splash.remove(self._qr_group)
+            if self._qr_group and self._qr_group in self._root_group:
+                self._root_group.remove(self._qr_group)
             self._qr_group = None
             gc.collect()
             return
@@ -154,8 +154,22 @@ class GraphicsBase:
                 pass
         else:
             self._qr_group = displayio.Group()
-            self.splash.append(self._qr_group)
+            self._root_group.append(self._qr_group)
         self._qr_group.scale = qr_size
         self._qr_group.x = x
         self._qr_group.y = y
         self._qr_group.append(qr_sprite)
+
+    @property
+    def root_group(self):
+        """The display's root group."""
+        return self._root_group
+
+    @property
+    def splash(self):
+        """The display's root group (for backwards compatibility)."""
+        print(
+            "WARNING: splash is deprecated, use root_group instead. "
+            "This will be removed in a future release."
+        )
+        return self.display._root_group
