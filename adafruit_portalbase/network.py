@@ -698,7 +698,7 @@ class NetworkBase:
             for regexp in regexp_path:
                 values.append(re.search(regexp, text).group(1))
         else:
-            values = text
+            values.append(text)
         return values
 
     def process_json(self, json_data, json_path):
