@@ -567,3 +567,8 @@ class PortalBase:
     def display(self):
         """The displayio.Display object for this device."""
         return self.graphics.display
+
+
+    @property
+    def text_fields(self):
+        return self._text
