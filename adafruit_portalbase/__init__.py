@@ -567,3 +567,11 @@ class PortalBase:
     def display(self):
         """The displayio.Display object for this device."""
         return self.graphics.display
+
+    @property
+    def text_fields(self):
+        """
+        The list of text field(s) metadata objects.
+        See add_text() definition for available metadata fields.
+        """
+        return self._text
