@@ -23,6 +23,7 @@ Implementation Notes
 
 import gc
 
+import adafruit_imageload
 import displayio
 
 __version__ = "0.0.0+auto.0"
@@ -76,11 +77,19 @@ class GraphicsBase:
 
         if not file_or_color:
             return  # we're done, no background desired
-        if isinstance(file_or_color, str):  # its a filenme:
-            background = displayio.OnDiskBitmap(file_or_color)
+        if isinstance(file_or_color, str):  # it's a filename:
+            if file_or_color.lower().endswith(".bmp"):
+                background = displayio.OnDiskBitmap(file_or_color)
+                palette = background.pixel_shader
+            elif file_or_color.lower().endswith(".jpg") or file_or_color.lower().endswith(".jpeg"):
+                background, palette = adafruit_imageload.load(file_or_color)
+            elif file_or_color.lower().endswith(".png"):
+                background, palette = adafruit_imageload.load(file_or_color)
+            else:
+                raise ValueError(f"Image File type {file_or_color} not supported")
             self._bg_sprite = displayio.TileGrid(
                 background,
-                pixel_shader=background.pixel_shader,
+                pixel_shader=palette,
                 x=position[0],
                 y=position[1],
             )
