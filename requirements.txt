@@ -13,3 +13,4 @@ adafruit-circuitpython-miniqr
 adafruit-circuitpython-requests
 adafruit-circuitpython-fakerequests
 adafruit-circuitpython-simpleio
+adafruit-circuitpython-imageload
