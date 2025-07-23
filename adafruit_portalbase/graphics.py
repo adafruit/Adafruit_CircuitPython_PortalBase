@@ -78,12 +78,11 @@ class GraphicsBase:
         if not file_or_color:
             return  # we're done, no background desired
         if isinstance(file_or_color, str):  # it's a filename:
-            if file_or_color.lower().endswith(".bmp"):
+            file_lower = file_or_color.lower()
+            if file_lower.endswith(".bmp"):
                 background = displayio.OnDiskBitmap(file_or_color)
                 palette = background.pixel_shader
-            elif file_or_color.lower().endswith(".jpg") or file_or_color.lower().endswith(".jpeg"):
-                background, palette = adafruit_imageload.load(file_or_color)
-            elif file_or_color.lower().endswith(".png"):
+            elif file_lower.endswith(".jpg") or file_lower.endswith(".jpeg") or file_lower.endswith(".png"):
                 background, palette = adafruit_imageload.load(file_or_color)
             else:
                 raise ValueError(f"Image File type {file_or_color} not supported")
