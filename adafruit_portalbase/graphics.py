@@ -184,4 +184,4 @@ class GraphicsBase:
             "WARNING: splash is deprecated, use root_group instead. "
             "This will be removed in a future release."
         )
-        return self.display._root_group
+        return self.display.root_group
