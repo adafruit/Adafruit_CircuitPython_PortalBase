@@ -28,6 +28,7 @@ import terminalio
 from adafruit_bitmap_font import bitmap_font
 from adafruit_display_text import wrap_text_to_lines
 from adafruit_display_text.bitmap_label import Label
+from adafruit_display_text.outlined_label import OutlinedLabel
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
@@ -164,6 +165,8 @@ class PortalBase:
         text_scale=1,
         line_spacing=1.25,
         text_anchor_point=(0, 0.5),
+        outline_size=0,
+        outline_color=0x000000,
         is_data=True,
         text=None,
     ) -> int:
@@ -222,6 +225,8 @@ class PortalBase:
             "line_spacing": line_spacing,
             "anchor_point": text_anchor_point,
             "is_data": bool(is_data),
+            "outline_size": outline_size,
+            "outline_color": outline_color,
         }
         self._text.append(text_field)
 
@@ -279,11 +284,20 @@ class PortalBase:
             print("Creating text area with :", string)
         if len(string) > 0:
             if self._text[index]["label"] is None:
-                self._text[index]["label"] = Label(
-                    self._fonts[self._text[index]["font"]],
-                    text=string,
-                    scale=self._text[index]["scale"],
-                )
+                if self._text[index]["outline_size"] == 0:
+                    self._text[index]["label"] = Label(
+                        self._fonts[self._text[index]["font"]],
+                        text=string,
+                        scale=self._text[index]["scale"],
+                    )
+                else:
+                    self._text[index]["label"] = OutlinedLabel(
+                        self._fonts[self._text[index]["font"]],
+                        text=string,
+                        scale=self._text[index]["scale"],
+                        outline_size=self._text[index]["outline_size"],
+                        outline_color=self._text[index]["outline_color"],
+                    )
                 if index_in_root_group is not None:
                     self.root_group[index_in_root_group] = self._text[index]["label"]
                 else:
