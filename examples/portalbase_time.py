@@ -28,5 +28,7 @@ jam = FruitJam(status_neopixel=None)
 net = NetworkBase(jam.network._wifi)
 net.connect()
 
+
+# --- shared output ---
 t = net.time_sync()
 print(t)
