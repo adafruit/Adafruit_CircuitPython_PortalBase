@@ -25,7 +25,7 @@ import gc
 import adafruit_connection_manager
 import adafruit_requests
 import board
-from adafruit_esp32spi import adafruit_esp32spi, adafruit_esp32spi_wifimanager
+from adafruit_esp32spi import adafruit_esp32spi
 from digitalio import DigitalInOut
 
 __version__ = "0.0.0+auto.0"

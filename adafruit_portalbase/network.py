@@ -26,8 +26,6 @@ import os
 import time
 import warnings
 
-import adafruit_connection_manager as acm
-import adafruit_ntp
 from adafruit_fakerequests import Fake_Requests
 from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
 from micropython import const
@@ -738,6 +736,14 @@ class NetworkBase:
         return values
 
     def time_sync(self, server=None, timeout=None, retries=None, tz=None):  # noqa: PLR0915, PLR0912
+        try:
+            import adafruit_connection_manager as acm
+            import adafruit_ntp
+        except ImportError as e:
+            raise ImportError(
+                "time_sync requires adafruit_ntp and adafruit_connection_manager"
+            ) from e
+
         try:
             import rtc
         except ImportError:
