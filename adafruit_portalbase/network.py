@@ -737,7 +737,7 @@ class NetworkBase:
             values = json.dumps(json_data)
         return values
 
-    def time_sync(self, server=None, timeout=None, retries=None, tz=None):
+    def time_sync(self, server=None, timeout=None, retries=None, tz=None):  # noqa: PLR0915, PLR0912
         try:
             import rtc
         except ImportError:
