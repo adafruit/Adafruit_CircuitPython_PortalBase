@@ -2,8 +2,31 @@
 #
 # SPDX-License-Identifier: MIT
 
-from adafruit_pyportal import PyPortal
+# Uncomment ONE board setup:
 
-portal = PyPortal(status_neopixel=None)
-now = portal.network.time_sync()
-print(now)
+# --- PyPortal ---
+# from adafruit_pyportal import PyPortal
+# portal = PyPortal(status_neopixel=None)
+# net = portal.network
+
+# --- MatrixPortal M4 ---
+# from adafruit_matrixportal.matrixportal import MatrixPortal
+# portal = MatrixPortal(status_neopixel=None)
+# net = portal.network
+
+# --- MagTag (ESP32-S2 native WiFi) ---
+# from adafruit_magtag.magtag import MagTag
+# magtag = MagTag(status_neopixel=None)
+# net = magtag.network
+
+# --- Fruit Jam (wrap its WiFi) ---
+from adafruit_fruitjam import FruitJam
+
+from adafruit_portalbase.network import NetworkBase
+
+jam = FruitJam(status_neopixel=None)
+net = NetworkBase(jam.network._wifi)
+net.connect()
+
+t = net.time_sync()
+print(t)
