@@ -735,79 +735,79 @@ class NetworkBase:
             values = json.dumps(json_data)
         return values
 
-    def time_sync(self, server=None, timeout=None, retries=None, tz=None):  # noqa: PLR0915, PLR0912
-        try:
-            import adafruit_connection_manager as acm
-            import adafruit_ntp
-        except ImportError as e:
-            raise ImportError(
-                "time_sync requires adafruit_ntp and adafruit_connection_manager"
-            ) from e
-
-        try:
-            import rtc
-        except ImportError:
-            rtc = None
-
-        # --- defaults from settings.toml ---
-        if server is None:
-            server = os.getenv("NTP_SERVER", "0.adafruit.pool.ntp.org")
-
-        if retries is None:
+    def _tz_from_env(self, default: float = 0.0) -> float:
+        tz = default
+        v = os.getenv("NTP_TZ")
+        if v:
             try:
-                retries = int(os.getenv("NTP_RETRIES", "8"))
-            except Exception:
-                retries = 8
-
-        if timeout is None:
-            try:
-                timeout = float(os.getenv("NTP_TIMEOUT", "5.0"))
-            except Exception:
-                timeout = 5.0
-
-        if tz is None:
-            tz = 0.0
-            try:
-                tz = float(os.getenv("NTP_TZ") or 0.0)
-            except Exception:
+                tz = float(v)
+            except ValueError:
                 pass
+        v = os.getenv("NTP_DST")
+        if v:
             try:
-                tz += float(os.getenv("NTP_DST") or 0.0)
-            except Exception:
+                tz += float(v)
+            except ValueError:
                 pass
+        return tz
 
-        # --- ensure Wi-Fi connected ---
-        if not getattr(self, "is_connected", False):
-            self.connect()
-        time.sleep(0.5)
-
-        # --- build socketpool for backend ---
+    def _socketpool_for_wifi(self):
         wm = getattr(self, "_wifi", None)
         radio = getattr(wm, "radio", None)
         esp = getattr(wm, "esp", None) or getattr(wm, "_esp", None)
         target = radio if (radio is not None) else esp
         if target is None:
             raise RuntimeError("No WiFi radio/esp found")
-        pool = acm.get_radio_socketpool(target)
+        from adafruit_connection_manager import get_radio_socketpool  # lazy import for tests
 
-        # --- attempt sync with retries ---
+        return get_radio_socketpool(target)
+
+    def _wait_for_ready_optional(self, timeout: float = 10.0, poll: float = 0.05) -> None:
+        wm = getattr(self, "_wifi", None)
+        ready = getattr(wm, "esp32_ready", None)
+        if ready is None:
+            return
+        start = time.monotonic()
+        while time.monotonic() - start < timeout:
+            if not ready.value:
+                return
+            time.sleep(poll)
+        raise TimeoutError("ESP32 not responding")
+
+    def time_sync(self, server=None, timeout=None, retries=None, tz=None):
+        server = server or os.getenv("NTP_SERVER", "0.adafruit.pool.ntp.org")
+        retries = int(os.getenv("NTP_RETRIES", "8")) if retries is None else int(retries)
+        timeout = float(os.getenv("NTP_TIMEOUT", "5.0")) if timeout is None else float(timeout)
+        tz = self._tz_from_env() if tz is None else float(tz)
+
+        if not self.is_connected:
+            self.connect()
+
+        try:
+            self._wait_for_ready_optional()
+        except Exception:
+            pass
+
+        pool = self._socketpool_for_wifi()
+
         last_exc = None
-        for _ in range(max(1, int(retries))):
+        for _ in range(max(1, retries)):
             try:
-                try:
-                    ntp = adafruit_ntp.NTP(pool, server=server, tz=tz, socket_timeout=timeout)
-                except TypeError:
-                    ntp = adafruit_ntp.NTP(
-                        pool, server=server, tz_offset=tz, socket_timeout=timeout
-                    )
+                from adafruit_ntp import NTP  # lazy import for CI/tests
 
-                if hasattr(ntp, "set_time"):
-                    ntp.set_time()
-                    now = time.localtime()
-                else:
-                    now = ntp.datetime
-                    if rtc is not None:
-                        rtc.RTC().datetime = now
+                try:
+                    ntp = NTP(pool, server=server, tz=tz, socket_timeout=timeout)
+                except TypeError:
+                    ntp = NTP(pool, server=server, tz_offset=tz, socket_timeout=timeout)
+
+                setter = getattr(ntp, "set_time", None)
+                if setter:
+                    setter()
+                    return time.localtime()
+
+                now = ntp.datetime
+                if rtc:
+                    rtc.RTC().datetime = now
                 return now
             except Exception as ex:
                 last_exc = ex
