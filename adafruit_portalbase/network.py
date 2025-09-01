@@ -25,8 +25,8 @@ import gc
 import os
 import time
 import warnings
-import adafruit_ntp
 import adafruit_connection_manager as acm
+import adafruit_ntp
 
 from adafruit_fakerequests import Fake_Requests
 from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
