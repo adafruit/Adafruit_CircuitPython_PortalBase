@@ -30,5 +30,4 @@ net.connect()
 
 
 # --- shared output ---
-t = net.time_sync()
-print(t)
+print(net.time_sync())

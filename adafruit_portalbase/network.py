@@ -752,15 +752,37 @@ class NetworkBase:
         return tz
 
     def _socketpool_for_wifi(self):
+        """Return a SocketPool for whichever Wi-Fi backend is available.
+        Works with native ESP32-S2/S3/C6 (wifi.radio) and ESP32SPI coprocessors.
+        Some CP10 board wrappers may not expose .radio/.esp; in that case,
+        try the native wifi.radio directly.
+        """
         wm = getattr(self, "_wifi", None)
         radio = getattr(wm, "radio", None)
         esp = getattr(wm, "esp", None) or getattr(wm, "_esp", None)
+
+        # CP10/MagTag fallback: wrapper didn't expose .radio/.esp -> use native radio
+        if (radio is None) and (esp is None):
+            try:
+                import wifi as _wifi_mod  # type: ignore
+
+                radio = getattr(_wifi_mod, "radio", None)
+            except Exception:
+                radio = None
+
         target = radio if (radio is not None) else esp
         if target is None:
             raise RuntimeError("No WiFi radio/esp found")
-        from adafruit_connection_manager import get_radio_socketpool  # lazy import for tests
 
-        return get_radio_socketpool(target)
+        # Prefer connection_manager helper, else direct SocketPool fallback
+        try:
+            from adafruit_connection_manager import get_radio_socketpool  # lazy import
+
+            return get_radio_socketpool(target)
+        except Exception:
+            import socketpool  # type: ignore
+
+            return socketpool.SocketPool(target)
 
     def _wait_for_ready_optional(self, timeout: float = 10.0, poll: float = 0.05) -> None:
         wm = getattr(self, "_wifi", None)
