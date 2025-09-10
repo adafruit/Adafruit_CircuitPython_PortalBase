@@ -22,11 +22,8 @@
 # --- Fruit Jam (wrap its WiFi) ---
 from adafruit_fruitjam import FruitJam
 
-from adafruit_portalbase.network import NetworkBase
-
 jam = FruitJam(status_neopixel=None)
-net = NetworkBase(jam.network._wifi)
-net.connect()
+net = jam.network
 
 
 # --- shared output ---
