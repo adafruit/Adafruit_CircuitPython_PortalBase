@@ -400,7 +400,7 @@ class NetworkBase:
             )
             if not len(self._wifi_credentials):
                 self._wifi_credentials = None
-                raise OSError("No valid wifi credentials provided")
+                raise OSError("No wifi credentials provided")
 
         for credentials in self._wifi_credentials:
             self._wifi.neo_status(STATUS_CONNECTING)
