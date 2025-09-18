@@ -391,8 +391,8 @@ class NetworkBase:
                     lambda credentials: isinstance(credentials, (list, tuple))
                     and "ssid" in credentials
                     and "password" in credentials
-                    and type(credentials["ssid"]) is str
-                    and type(credentials["password"]) is str
+                    and isinstance(credentials["ssid"], str)
+                    and isinstance(credentials["password"], str)
                     and len(credentials["ssid"])
                     and len(credentials["password"]),
                     self._wifi_credentials,
