@@ -393,8 +393,7 @@ class NetworkBase:
                     and "password" in credentials
                     and isinstance(credentials["ssid"], str)
                     and isinstance(credentials["password"], str)
-                    and len(credentials["ssid"])
-                    and len(credentials["password"]),
+                    and len(credentials["ssid"]),
                     self._wifi_credentials,
                 )
             )
