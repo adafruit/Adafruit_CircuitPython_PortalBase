@@ -127,14 +127,10 @@ def test_value_stored(settings_toml_current):
     mock_getenv.assert_not_called()
 
 
-@pytest.mark.parametrize(
-    ("key", "value"),
-    (
-        ("CIRCUITPY_WIFI_PASSWORD", ""),
-        ("CIRCUITPY_WIFI_SSID", ""),
-    ),
-)
 def test_invalid_wifi_credentials():
+    for key in ("CIRCUITPY_WIFI_SSID", "CIRCUITPY_WIFI_PASSWORD"):
+        if os.getenv(key) is not None and os.getenv(key) != "":
+            assert False
     network = NetworkBase(None)
     try:
         network.connect()
