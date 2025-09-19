@@ -139,5 +139,5 @@ def test_invalid_wifi_credentials():
     try:
         network.connect()
         assert False
-    except OSError as e:
+    except OSError:
         assert True
