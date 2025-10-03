@@ -125,3 +125,15 @@ def test_value_stored(settings_toml_current):
     with mock.patch("os.getenv", return_value="test") as mock_getenv:
         assert network._get_setting("ADAFRUIT_AIO_KEY") == "test"
     mock_getenv.assert_not_called()
+
+
+def test_invalid_wifi_credentials():
+    for key in ("CIRCUITPY_WIFI_SSID", "CIRCUITPY_WIFI_PASSWORD"):
+        if os.getenv(key) is not None and os.getenv(key) != "":
+            assert False
+    network = NetworkBase(None)
+    try:
+        network.connect()
+        assert False
+    except OSError:
+        assert True

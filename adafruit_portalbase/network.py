@@ -386,6 +386,21 @@ class NetworkBase:
                         "'networks' must be a list/tuple of dicts of 'ssid' and 'password'"
                     )
 
+            self._wifi_credentials = list(
+                filter(
+                    lambda credentials: isinstance(credentials, dict)
+                    and "ssid" in credentials
+                    and "password" in credentials
+                    and isinstance(credentials["ssid"], str)
+                    and isinstance(credentials["password"], str)
+                    and len(credentials["ssid"]),
+                    self._wifi_credentials,
+                )
+            )
+            if not len(self._wifi_credentials):
+                self._wifi_credentials = None
+                raise OSError("No wifi credentials provided")
+
         for credentials in self._wifi_credentials:
             self._wifi.neo_status(STATUS_CONNECTING)
             attempt = 1
