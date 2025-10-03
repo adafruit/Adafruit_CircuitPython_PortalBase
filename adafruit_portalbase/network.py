@@ -388,7 +388,7 @@ class NetworkBase:
 
             self._wifi_credentials = list(
                 filter(
-                    lambda credentials: isinstance(credentials, (list, tuple))
+                    lambda credentials: isinstance(credentials, dict)
                     and "ssid" in credentials
                     and "password" in credentials
                     and isinstance(credentials["ssid"], str)
