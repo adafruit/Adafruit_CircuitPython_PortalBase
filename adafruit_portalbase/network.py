@@ -333,7 +333,11 @@ class NetworkBase:
 
         if self._debug:
             print(response.headers)
-        if "content-length" not in headers and "transfer-encoding" not in headers and headers["transfer-encoding"] != "chunked":
+        if (
+            "content-length" not in headers
+            and "transfer-encoding" not in headers
+            and headers["transfer-encoding"] != "chunked"
+        ):
             raise RuntimeError("Invalid headers in response")
 
         print("Saving data to ", filename)
@@ -347,7 +351,9 @@ class NetworkBase:
                     remaining -= len(i)
                     file.write(i)
                     if self._debug:
-                        print("Read %d bytes, %d remaining" % (content_length - remaining, remaining))
+                        print(
+                            "Read %d bytes, %d remaining" % (content_length - remaining, remaining)
+                        )
                     else:
                         print(".", end="")
                     if not remaining:
