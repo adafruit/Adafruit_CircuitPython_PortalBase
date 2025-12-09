@@ -333,27 +333,40 @@ class NetworkBase:
 
         if self._debug:
             print(response.headers)
-        if "content-length" in headers:
-            content_length = int(headers["content-length"])
-        else:
-            raise RuntimeError("Content-Length missing from headers")
-        remaining = content_length
+        if "content-length" not in headers and "transfer-encoding" not in headers and headers["transfer-encoding"] == "chunked":
+            raise RuntimeError("Invalid headers in response")
+
         print("Saving data to ", filename)
         stamp = time.monotonic()
         with open(filename, "wb") as file:
-            for i in response.iter_content(min(remaining, chunk_size)):  # huge chunks!
-                self.neo_status(STATUS_DOWNLOADING)
-                remaining -= len(i)
-                file.write(i)
-                if self._debug:
-                    print("Read %d bytes, %d remaining" % (content_length - remaining, remaining))
-                else:
-                    print(".", end="")
-                if not remaining:
-                    break
-                self.neo_status(STATUS_FETCHING)
+            if "content-length" in headers:
+                content_length = int(headers["content-length"])
+                remaining = content_length
+                for i in response.iter_content(min(remaining, chunk_size)):  # huge chunks!
+                    self.neo_status(STATUS_DOWNLOADING)
+                    remaining -= len(i)
+                    file.write(i)
+                    if self._debug:
+                        print("Read %d bytes, %d remaining" % (content_length - remaining, remaining))
+                    else:
+                        print(".", end="")
+                    if not remaining:
+                        break
+                    self.neo_status(STATUS_FETCHING)
+                response.close()
+            elif "transfer-encoding" in headers and headers["transfer-encoding"] == "chunked":
+                content_length = 0
+                for i in response.iter_content(chunk_size):
+                    self.neo_status(STATUS_DOWNLOADING)
+                    content_length += len(i)
+                    file.write(i)
+                    if self._debug:
+                        print("Read %d bytes, %d total" % (len(i), content_length))
+                    else:
+                        print(".", end="")
+                    self.neo_status(STATUS_FETCHING)
+                response.close()
 
-        response.close()
         stamp = time.monotonic() - stamp
         print("Created file of %d bytes in %0.1f seconds" % (os.stat(filename)[6], stamp))
         self.neo_status(STATUS_OFF)
