@@ -28,7 +28,6 @@ import terminalio
 from adafruit_bitmap_font import bitmap_font
 from adafruit_display_text import wrap_text_to_lines
 from adafruit_display_text.bitmap_label import Label
-from adafruit_display_text.outlined_label import OutlinedLabel
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
@@ -291,7 +290,7 @@ class PortalBase:
                         scale=self._text[index]["scale"],
                     )
                 else:
-                    self._text[index]["label"] = OutlinedLabel(
+                    self._text[index]["label"] = Label(
                         self._fonts[self._text[index]["font"]],
                         text=string,
                         scale=self._text[index]["scale"],
