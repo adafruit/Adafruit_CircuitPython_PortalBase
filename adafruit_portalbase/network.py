@@ -333,7 +333,7 @@ class NetworkBase:
 
         if self._debug:
             print(response.headers)
-        if "content-length" not in headers and "transfer-encoding" not in headers and headers["transfer-encoding"] == "chunked":
+        if "content-length" not in headers and "transfer-encoding" not in headers and headers["transfer-encoding"] != "chunked":
             raise RuntimeError("Invalid headers in response")
 
         print("Saving data to ", filename)
