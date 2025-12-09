@@ -333,45 +333,40 @@ class NetworkBase:
 
         if self._debug:
             print(response.headers)
-        if (
+
+        chunked = (
             "content-length" not in headers
-            and "transfer-encoding" not in headers
-            and headers["transfer-encoding"] != "chunked"
-        ):
+            and "transfer-encoding" in headers
+            and headers["transfer-encoding"] == "chunked"
+        )
+        if "content-length" not in headers and not chunked:
             raise RuntimeError("Invalid headers in response")
 
         print("Saving data to ", filename)
         stamp = time.monotonic()
         with open(filename, "wb") as file:
-            if "content-length" in headers:
-                content_length = int(headers["content-length"])
-                remaining = content_length
-                for i in response.iter_content(min(remaining, chunk_size)):  # huge chunks!
-                    self.neo_status(STATUS_DOWNLOADING)
+            content_length = int(headers["content-length"]) if "content-length" in headers else 0
+            remaining = chunk_size if chunked else content_length
+            for i in response.iter_content(min(remaining, chunk_size)):  # huge chunks!
+                self.neo_status(STATUS_DOWNLOADING)
+                if chunked:
+                    content_length += len(i)
+                else:
                     remaining -= len(i)
-                    file.write(i)
-                    if self._debug:
+                file.write(i)
+                if self._debug:
+                    if chunked:
+                        print("Read %d bytes, %d total" % (len(i), content_length))
+                    else:
                         print(
                             "Read %d bytes, %d remaining" % (content_length - remaining, remaining)
                         )
-                    else:
-                        print(".", end="")
-                    if not remaining:
-                        break
-                    self.neo_status(STATUS_FETCHING)
-                response.close()
-            elif "transfer-encoding" in headers and headers["transfer-encoding"] == "chunked":
-                content_length = 0
-                for i in response.iter_content(chunk_size):
-                    self.neo_status(STATUS_DOWNLOADING)
-                    content_length += len(i)
-                    file.write(i)
-                    if self._debug:
-                        print("Read %d bytes, %d total" % (len(i), content_length))
-                    else:
-                        print(".", end="")
-                    self.neo_status(STATUS_FETCHING)
-                response.close()
+                else:
+                    print(".", end="")
+                if not chunked and not remaining:
+                    break
+                self.neo_status(STATUS_FETCHING)
+            response.close()
 
         stamp = time.monotonic() - stamp
         print("Created file of %d bytes in %0.1f seconds" % (os.stat(filename)[6], stamp))
