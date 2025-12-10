@@ -28,7 +28,11 @@ import terminalio
 from adafruit_bitmap_font import bitmap_font
 from adafruit_display_text import wrap_text_to_lines
 from adafruit_display_text.bitmap_label import Label
-from adafruit_display_text.outlined_label import OutlinedLabel
+
+if not hasattr(Label, "outline_size"):
+    from adafruit_display_text.outlined_label import OutlinedLabel
+else:
+    OutlinedLabel = Label
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
