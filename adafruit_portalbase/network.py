@@ -297,7 +297,7 @@ class NetworkBase:
 
         return reply
 
-    def wget(self, url, filename, *, chunk_size=12000, headers=None):
+    def wget(self, url, filename, *, chunk_size=12000, headers=None):  # noqa: PLR0912
         """Download a url and save to filename location, like the command wget.
 
         :param url: The URL from which to obtain the data.
@@ -356,11 +356,9 @@ class NetworkBase:
                 file.write(i)
                 if self._debug:
                     if chunked:
-                        print("Read %d bytes, %d total" % (len(i), content_length))
+                        print(f"Read {len(i)} bytes, {content_length} total")
                     else:
-                        print(
-                            "Read %d bytes, %d remaining" % (content_length - remaining, remaining)
-                        )
+                        print(f"Read {content_length - remaining} bytes, {remaining} remaining")
                 else:
                     print(".", end="")
                 if not chunked and not remaining:
@@ -369,7 +367,7 @@ class NetworkBase:
             response.close()
 
         stamp = time.monotonic() - stamp
-        print("Created file of %d bytes in %0.1f seconds" % (os.stat(filename)[6], stamp))
+        print(f"Created file of {os.stat(filename)[6]} bytes in {stamp:.1f} seconds")
         self.neo_status(STATUS_OFF)
         if not content_length == os.stat(filename)[6]:
             raise RuntimeError
@@ -402,12 +400,14 @@ class NetworkBase:
 
             self._wifi_credentials = list(
                 filter(
-                    lambda credentials: isinstance(credentials, dict)
-                    and "ssid" in credentials
-                    and "password" in credentials
-                    and isinstance(credentials["ssid"], str)
-                    and isinstance(credentials["password"], str)
-                    and len(credentials["ssid"]),
+                    lambda credentials: (
+                        isinstance(credentials, dict)
+                        and "ssid" in credentials
+                        and "password" in credentials
+                        and isinstance(credentials["ssid"], str)
+                        and isinstance(credentials["password"], str)
+                        and len(credentials["ssid"])
+                    ),
                     self._wifi_credentials,
                 )
             )
