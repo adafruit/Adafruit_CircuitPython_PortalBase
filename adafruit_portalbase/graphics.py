@@ -42,7 +42,14 @@ class GraphicsBase:
 
     """
 
-    def __init__(self, display, *, default_bg=0x000000, scale=1, debug=False):  # noqa: PLR0912,PLR0913 Too many branches,Too many arguments in function definition
+    def __init__(
+        self,
+        display,
+        *,
+        default_bg: None | str | int = 0x000000,
+        scale: int = 1,
+        debug: bool = False,
+    ):  # noqa: PLR0912,PLR0913 Too many branches,Too many arguments in function definition
         self._debug = debug
         self.display = display
 
