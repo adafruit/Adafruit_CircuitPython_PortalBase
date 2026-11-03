@@ -28,6 +28,12 @@ import board
 from adafruit_esp32spi import adafruit_esp32spi
 from digitalio import DigitalInOut
 
+try:
+    # Present when CircuitPython can manage the ESP32 itself (for web workflow).
+    import _airlift
+except ImportError:
+    _airlift = None
+
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PortalBase.git"
 
@@ -53,6 +59,10 @@ class WiFi:
 
         if esp:  # If there was a passed ESP Object
             self.esp = esp
+        elif _airlift is not None and _airlift.active():
+            # CircuitPython is using the ESP32 (web workflow is configured), so
+            # its pins are taken. Share it through the core instead.
+            self.esp = adafruit_esp32spi.ESP_SPIcontrol()
         else:
             esp32_ready = DigitalInOut(board.ESP_BUSY)
             esp32_gpio0 = DigitalInOut(board.ESP_GPIO0)
